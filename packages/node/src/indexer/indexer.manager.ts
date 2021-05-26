@@ -15,7 +15,6 @@ import * as SubstrateUtil from '../utils/substrate';
 import { ApiService } from './api.service';
 import { IndexerEvent } from './events';
 import { FetchService } from './fetch.service';
-import { IndexerSandbox } from './sandbox';
 import { StoreService } from './store.service';
 import { BlockContent } from './types';
 
@@ -25,7 +24,6 @@ const logger = getLogger('indexer');
 
 @Injectable()
 export class IndexerManager {
-  private vm: IndexerSandbox;
   private api: ApiPromise;
   private subqueryState: SubqueryModel;
   private prevSpecVersion?: number;
@@ -72,7 +70,8 @@ export class IndexerManager {
             switch (handler.kind) {
               case SubqlKind.BlockHandler:
                 if (SubstrateUtil.filterBlock(block, handler.filter)) {
-                  await this.vm.securedExec(handler.handler, [block]);
+                  //await this.vm.securedExec(handler.handler, [block]);
+                  console.log(handler, [block]);
                 }
                 break;
               case SubqlKind.CallHandler: {
@@ -81,7 +80,8 @@ export class IndexerManager {
                   handler.filter,
                 );
                 for (const e of filteredExtrinsics) {
-                  await this.vm.securedExec(handler.handler, [e]);
+                  //await this.vm.securedExec(handler.handler, [e]);
+                  console.log(handler, [e]);
                 }
                 break;
               }
@@ -91,7 +91,8 @@ export class IndexerManager {
                   handler.filter,
                 );
                 for (const e of filteredEvents) {
-                  await this.vm.securedExec(handler.handler, [e]);
+                  //await this.vm.securedExec(handler.handler, [e]);
+                  console.log(handler, [e]);
                 }
                 break;
               }
@@ -119,7 +120,7 @@ export class IndexerManager {
     this.api = this.apiService.getApi();
     this.subqueryState = await this.ensureProject(this.nodeConfig.subqueryName);
     await this.initDbSchema();
-    await this.initVM();
+    await this.apiService.getPatchedApi();
     void this.fetchService
       .startLoop(this.subqueryState.nextBlockHeight)
       .catch((err) => {
@@ -128,18 +129,6 @@ export class IndexerManager {
         process.exit(1);
       });
     this.fetchService.register((block) => this.indexBlock(block));
-  }
-
-  private async initVM(): Promise<void> {
-    const api = await this.apiService.getPatchedApi();
-    this.vm = new IndexerSandbox(
-      {
-        store: this.storeService.getStore(),
-        api,
-        root: this.project.path,
-      },
-      this.nodeConfig,
-    );
   }
 
   private getStartBlockFromDataSources() {

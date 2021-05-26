@@ -21,7 +21,7 @@ export class NodeOption {}
       database: process.env.DB_DATABASE ?? 'postgres',
     }),
     EventEmitterModule.forRoot(),
-    ConfigureModule.register(),
+    ConfigureModule.register(), // provides NodeConfig && SubqueryProject
     ScheduleModule.forRoot(),
     IndexerModule,
     MetaModule,

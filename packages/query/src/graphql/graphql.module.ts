@@ -11,6 +11,8 @@ import {Config} from '../configure';
 import {getLogger} from '../utils/logger';
 import {plugins} from './plugins';
 import {ProjectService} from './project.service';
+import {useSofa} from 'sofa-api';
+import express from 'express';
 
 @Module({
   providers: [ProjectService],
@@ -62,6 +64,33 @@ export class GraphqlModule implements OnModuleInit, OnModuleDestroy {
         path: '/subscription',
       },
     });
+
+    // const port = process.env.PORT || 4000;
+    // const appRest = express();  
+    console.log('pre');
+
+    console.log(schema);
+
+    console.log('stringify');
+
+    console.log(JSON.stringify(schema, null, ' '));
+
+    const sofaMiddleware = useSofa({
+    //basePath: "/api",
+    //context: { pgClient: this.pgPool },
+      schema,
+    });
+    
+    console.log('wtf');
+    
+
+    //appRest.use("/api", sofaMiddleware);
+/*
+    appRest.use("/api", (req, res, next)=>{
+      console.log(req.path);
+      next();
+    });
+*/
     app.use(
       ExpressPinoLogger({
         logger: getLogger('express'),
@@ -70,6 +99,7 @@ export class GraphqlModule implements OnModuleInit, OnModuleDestroy {
         },
       })
     );
+    
     server.applyMiddleware({
       app,
       path: '/',

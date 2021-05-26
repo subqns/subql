@@ -39,7 +39,7 @@
     "express-pino-logger": "^6.0.0",
     "graphile-build": "^4.10.0",
     "graphile-build-pg": "^4.10.0",
-    "graphql": "^15.4.0",
+    "graphql": "^15.5.0",
     "lodash": "^4.17.20",
     "pg": "^8.5.1",
     "postgraphile-core": "^4.11.2",
@@ -47,6 +47,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3",
+    "sofa-api": "^0.10",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
