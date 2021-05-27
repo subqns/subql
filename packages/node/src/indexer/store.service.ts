@@ -139,11 +139,6 @@ export class StoreService {
     }
   }
 
-  setTransaction(tx: Transaction) {
-    this.tx = tx;
-    tx.afterCommit(() => (this.tx = undefined));
-  }
-
   private async getAllIndexFields(schema: string) {
     const fields: IndexField[][] = [];
     for (const entity of this.modelsRelations.models) {

@@ -1,0 +1,3 @@
+[submodule "packages/nftmart"]
+	path = packages/nftmart
+	url = https://github.com/subqns/nftmart-subql

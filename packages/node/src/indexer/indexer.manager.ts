@@ -17,6 +17,8 @@ import { IndexerEvent } from './events';
 import { FetchService } from './fetch.service';
 import { StoreService } from './store.service';
 import { BlockContent } from './types';
+import { handleBlock, handleCall, handleEvent } from '@nftmart/subql';
+import { setApi, setStore } from '@subql/types';
 
 const DEFAULT_DB_SCHEMA = 'public';
 
@@ -44,8 +46,7 @@ export class IndexerManager {
       height: block.block.header.number.toNumber(),
       timestamp: Date.now(),
     });
-    const tx = await this.sequelize.transaction();
-    this.storeService.setTransaction(tx);
+    // const tx = await this.sequelize.transaction();
 
     try {
       const inject = block.specVersion !== this.prevSpecVersion;
@@ -70,8 +71,7 @@ export class IndexerManager {
             switch (handler.kind) {
               case SubqlKind.BlockHandler:
                 if (SubstrateUtil.filterBlock(block, handler.filter)) {
-                  //await this.vm.securedExec(handler.handler, [block]);
-                  console.log(handler, [block]);
+                  handleBlock(block);
                 }
                 break;
               case SubqlKind.CallHandler: {
@@ -80,8 +80,7 @@ export class IndexerManager {
                   handler.filter,
                 );
                 for (const e of filteredExtrinsics) {
-                  //await this.vm.securedExec(handler.handler, [e]);
-                  console.log(handler, [e]);
+                  handleCall(e);
                 }
                 break;
               }
@@ -91,8 +90,7 @@ export class IndexerManager {
                   handler.filter,
                 );
                 for (const e of filteredEvents) {
-                  //await this.vm.securedExec(handler.handler, [e]);
-                  console.log(handler, [e]);
+                  handleEvent(e);
                 }
                 break;
               }
@@ -108,10 +106,8 @@ export class IndexerManager {
       this.fetchService.latestProcessed(block.block.header.number.toNumber());
       this.prevSpecVersion = block.specVersion;
     } catch (e) {
-      await tx.rollback();
       throw e;
     }
-    await tx.commit();
   }
 
   async start(): Promise<void> {
@@ -120,7 +116,8 @@ export class IndexerManager {
     this.api = this.apiService.getApi();
     this.subqueryState = await this.ensureProject(this.nodeConfig.subqueryName);
     await this.initDbSchema();
-    await this.apiService.getPatchedApi();
+    setApi(await this.apiService.getPatchedApi());
+    setStore(this.storeService.getStore());
     void this.fetchService
       .startLoop(this.subqueryState.nextBlockHeight)
       .catch((err) => {

@@ -13,11 +13,13 @@ export function getYargsOption() {
       demandOption: false,
       describe: 'Local path of the subquery project',
       type: 'string',
+      default: '../nftmart',
     },
     'subquery-name': {
       demandOption: false,
       describe: 'Name of the subquery project',
       type: 'string',
+      default: 'nftmart',
     },
     config: {
       alias: 'c',
