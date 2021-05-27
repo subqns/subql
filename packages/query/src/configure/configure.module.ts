@@ -5,7 +5,7 @@ import {DynamicModule, Global, Module} from '@nestjs/common';
 import {Pool} from 'pg';
 import {getLogger} from '../utils/logger';
 import {getYargsOption} from '../yargs';
-import {Config} from './config';
+import {QueryConfig} from './config';
 
 @Global()
 @Module({})
@@ -13,17 +13,17 @@ export class ConfigureModule {
   static register(): DynamicModule {
     const {argv: opts} = getYargsOption();
 
-    const config = new Config({
-      name: opts.name,
-      playground: opts.playground ?? false,
+    const qonfig = new QueryConfig({
+      name: 'nftmart',
+      playground: true,
     });
 
     const pgPool = new Pool({
-      user: config.get('DB_USER'),
-      password: config.get('DB_PASS'),
-      host: config.get('DB_HOST_READ') ?? config.get('DB_HOST'),
-      port: config.get('DB_PORT'),
-      database: config.get('DB_DATABASE'),
+      user: qonfig.get('DB_USER'),
+      password: qonfig.get('DB_PASS'),
+      host: qonfig.get('DB_HOST_READ') ?? qonfig.get('DB_HOST'),
+      port: qonfig.get('DB_PORT'),
+      database: qonfig.get('DB_DATABASE'),
     });
     pgPool.on('error', (err) => {
       // tslint:disable-next-line no-console
@@ -34,15 +34,15 @@ export class ConfigureModule {
       module: ConfigureModule,
       providers: [
         {
-          provide: Config,
-          useValue: config,
+          provide: QueryConfig,
+          useValue: qonfig,
         },
         {
           provide: Pool,
           useValue: pgPool,
         },
       ],
-      exports: [Config, Pool],
+      exports: [QueryConfig, Pool],
     };
   }
 }

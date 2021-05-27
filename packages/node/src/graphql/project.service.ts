@@ -1,20 +1,23 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import {Injectable} from '@nestjs/common';
-import {Pool} from 'pg';
-import {QueryConfig} from '../configure';
+import { Injectable } from '@nestjs/common';
+import { Pool } from 'pg';
+import { QueryConfig } from '../configure/QueryConfig';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly pool: Pool, private readonly config: QueryConfig) {}
+  constructor(
+    private readonly pool: Pool,
+    private readonly config: QueryConfig,
+  ) {}
 
   async getProjectSchema(name: string): Promise<string> {
-    const {rows} = await this.pool.query(
+    const { rows } = await this.pool.query(
       `select *
        from public.subqueries
        where name = $1`,
-      [name]
+      [name],
     );
     if (rows.length === 0) {
       throw new Error(`unknown project name ${this.config.get('name')}`);

@@ -1,17 +1,17 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import {Module, OnModuleDestroy, OnModuleInit} from '@nestjs/common';
-import {HttpAdapterHost} from '@nestjs/core';
-import {ApolloServer} from 'apollo-server-express';
+import { Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
+import { ApolloServer } from 'apollo-server-express';
 import ExpressPinoLogger from 'express-pino-logger';
-import {Pool} from 'pg';
-import {getPostGraphileBuilder} from 'postgraphile-core';
-import {QueryConfig} from '../configure';
-import {getLogger} from '../utils/logger';
-import {plugins} from './plugins';
-import {ProjectService} from './project.service';
-import {useSofa} from 'sofa-api';
+import { Pool } from 'pg';
+import { getPostGraphileBuilder } from 'postgraphile-core';
+import { QueryConfig } from '../configure/QueryConfig';
+import { getLogger } from '../utils/logger';
+import { plugins } from './plugins';
+import { ProjectService } from './project.service';
+import { useSofa } from 'sofa-api';
 import express from 'express';
 
 @Module({
@@ -24,7 +24,7 @@ export class GraphqlModule implements OnModuleInit, OnModuleDestroy {
     private readonly httpAdapterHost: HttpAdapterHost,
     private readonly config: QueryConfig,
     private readonly pgPool: Pool,
-    private readonly projectService: ProjectService
+    private readonly projectService: ProjectService,
   ) {}
 
   async onModuleInit(): Promise<void> {
@@ -42,7 +42,9 @@ export class GraphqlModule implements OnModuleInit, OnModuleDestroy {
     const app = this.httpAdapterHost.httpAdapter.getInstance();
     const httpServer = this.httpAdapterHost.httpAdapter.getHttpServer();
 
-    const dbSchema = await this.projectService.getProjectSchema(this.config.get('name'));
+    const dbSchema = await this.projectService.getProjectSchema(
+      this.config.get('name'),
+    );
     const builder = await getPostGraphileBuilder(this.pgPool, [dbSchema], {
       replaceAllPlugins: plugins,
       subscriptions: true,
@@ -98,7 +100,7 @@ export class GraphqlModule implements OnModuleInit, OnModuleDestroy {
         autoLogging: {
           ignorePaths: ['/.well-known/apollo/server-health'],
         },
-      })
+      }),
     );
 
     server.applyMiddleware({

@@ -13,11 +13,13 @@ export function getYargsOption() {
       describe: 'project name',
       type: 'string',
       demandOption: true,
+      default: 'nftmart',
     },
     playground: {
       describe: 'enable graphql playground',
       type: 'boolean',
       demandOption: false,
+      default: true,
     },
     'output-fmt': {
       demandOption: false,

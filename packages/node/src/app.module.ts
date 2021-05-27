@@ -8,6 +8,7 @@ import { ConfigureModule } from './configure/configure.module';
 import { DbModule } from './db/db.module';
 import { IndexerModule } from './indexer/indexer.module';
 import { MetaModule } from './meta/meta.module';
+import { GraphqlModule } from './graphql/graphql.module';
 
 export class NodeOption {}
 
@@ -25,6 +26,7 @@ export class NodeOption {}
     ScheduleModule.forRoot(),
     IndexerModule,
     MetaModule,
+    GraphqlModule,
   ],
   controllers: [],
 })

@@ -10,6 +10,9 @@ import { getYargsOption } from '../yargs';
 import { IConfig, MinConfig, NodeConfig } from './NodeConfig';
 import { SubqueryProject } from './project.model';
 
+import { Pool } from 'pg';
+import { QueryConfig } from './QueryConfig';
+
 const YargsNameMapping = {
   local: 'localMode',
 };
@@ -77,6 +80,23 @@ export class ConfigureModule {
       return p;
     };
 
+    const qonfig = new QueryConfig({
+      name: 'nftmart',
+      playground: true,
+    });
+
+    const pgPool = new Pool({
+      user: qonfig.get('DB_USER'),
+      password: qonfig.get('DB_PASS'),
+      host: qonfig.get('DB_HOST_READ') ?? qonfig.get('DB_HOST'),
+      port: qonfig.get('DB_PORT'),
+      database: qonfig.get('DB_DATABASE'),
+    });
+    pgPool.on('error', (err) => {
+      // tslint:disable-next-line no-console
+      getLogger('db').error('PostgreSQL client generated error: ', err.message);
+    });
+
     return {
       module: ConfigureModule,
       providers: [
@@ -88,8 +108,16 @@ export class ConfigureModule {
           provide: SubqueryProject,
           useFactory: project,
         },
+        {
+          provide: QueryConfig,
+          useValue: qonfig,
+        },
+        {
+          provide: Pool,
+          useValue: pgPool,
+        },
       ],
-      exports: [NodeConfig, SubqueryProject],
+      exports: [NodeConfig, SubqueryProject, QueryConfig, Pool],
     };
   }
 }
