@@ -8,8 +8,8 @@
     "prebuild": "rimraf dist",
     "build": "rm -rf dist && tsc -b",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
-    "s": "ts-node src/main.ts",
+    "start": "ts-node src/main.ts",
+    "start:nest": "nest start",
     "start:dev": "nodemon",
     "start:prod": "node dist/main"
   },

@@ -23,14 +23,6 @@ k(){
  done
 }
 
-nq(){
- while :; do
- #./bin/run
-  yarn s
-  sleep 1
- done
-}
-
 k &
 
-nq
+yarn start

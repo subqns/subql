@@ -33,6 +33,7 @@
     "@polkadot/api": "4.6.2"
   },
   "scripts": {
+    "start": "yarn workspace @subql/node start",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
     "lint": "eslint packages --ext .ts",
