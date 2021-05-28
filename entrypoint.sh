@@ -25,4 +25,4 @@ k(){
 
 k &
 
-yarn start
+yarn start:prod

@@ -8,7 +8,7 @@ COPY --from=k0s /usr/bin/k0s /bin/k0s
 
 RUN chmod +x /bin/k0s
 
-RUN apt update && apt install -y curl bash git tmux
+RUN apt update && apt install -y curl bash git tmux vim
 
 COPY . /app
 
@@ -22,7 +22,7 @@ RUN git clone -b subql https://github.com/subqns/nftmart-subql nftmart
 
 WORKDIR /app
 
-RUN yarn
+RUN yarn && yarn build
 
 ENTRYPOINT [ "/bin/bash", "-c" ]
 

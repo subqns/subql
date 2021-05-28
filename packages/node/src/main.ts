@@ -18,7 +18,7 @@ async function bootstrap() {
   await indexerManager.start();
   await app.init();
   await app.listen(PORT);
-  getLogger('subql-node').info('node started');
+  getLogger('subql-node').info(`node started on ${PORT}`);
 }
 
 void bootstrap();

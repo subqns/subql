@@ -33,6 +33,7 @@
     {"path": "packages/common"},
     {"path": "packages/node"},
     {"path": "packages/types"},
+    {"path": "packages/nftmart"},
     {"path": "packages/validator"}
   ],
   "include": ["packages/**/*"],
