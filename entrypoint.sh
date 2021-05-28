@@ -25,7 +25,8 @@ k(){
 
 nq(){
  while :; do
-  ./bin/run
+ #./bin/run
+  yarn s
   sleep 1
  done
 }

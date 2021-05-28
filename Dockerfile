@@ -20,11 +20,9 @@ WORKDIR /app/packages
 # RUN git submodule update --init --recursive
 RUN git clone -b subql https://github.com/subqns/nftmart-subql nftmart
 
-RUN cd /app/ && yarn
-RUN cd /app/packages/nftmart && yarn build
-RUN cd /app/packages/node && yarn build
-
 WORKDIR /app/packages/node
+
+RUN yarn
 
 ENTRYPOINT [ "/bin/bash", "-c" ]
 

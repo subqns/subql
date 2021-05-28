@@ -17,7 +17,7 @@ import { IndexerEvent } from './events';
 import { FetchService } from './fetch.service';
 import { StoreService } from './store.service';
 import { BlockContent } from './types';
-import { handleBlock, handleCall, handleEvent } from '@nftmart/subql';
+import { handleBlock, handleCall, handleEvent } from '@nftmart/subql/src';
 import { setApi, setStore } from '@subql/types';
 
 const DEFAULT_DB_SCHEMA = 'public';
