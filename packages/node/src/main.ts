@@ -14,9 +14,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: debug ? new NestLogger() : false,
   });
-  await app.init();
   const indexerManager = app.get(IndexerManager);
   await indexerManager.start();
+  await app.init();
   await app.listen(PORT);
   getLogger('subql-node').info('node started');
 }
