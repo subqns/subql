@@ -1,5 +1,6 @@
 # Welcome to SubQuery!
 ![open grant logo](https://raw.githubusercontent.com/w3f/General-Grants-Program/master/src/badge_black.svg)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/subqns/subql)
 
 **SubQuery enables better dApps by making decentralised data more accessible**
 

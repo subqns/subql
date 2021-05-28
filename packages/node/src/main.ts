@@ -7,6 +7,8 @@ import { IndexerManager } from './indexer/indexer.manager';
 import { getLogger, NestLogger } from './utils/logger';
 import { argv } from './yargs';
 
+const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+
 async function bootstrap() {
   const debug = argv('debug');
   const app = await NestFactory.create(AppModule, {
@@ -15,7 +17,7 @@ async function bootstrap() {
   await app.init();
   const indexerManager = app.get(IndexerManager);
   await indexerManager.start();
-  await app.listen(3000);
+  await app.listen(PORT);
   getLogger('subql-node').info('node started');
 }
 
