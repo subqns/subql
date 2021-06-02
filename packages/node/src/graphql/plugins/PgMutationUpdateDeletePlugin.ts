@@ -4,10 +4,10 @@ import debugFactory from 'debug';
 
 const debug = debugFactory('graphile-build-pg');
 
-export default (async function PgMutationUpdateDeletePlugin(
+export default function PgMutationUpdateDeletePlugin(
   builder,
   { pgDisableDefaultMutations },
-) {
+): Plugin {
   if (pgDisableDefaultMutations) {
     return;
   }
@@ -156,6 +156,7 @@ returning *`;
                 );
                 let row;
                 try {
+                  await pgClient.query('BEGIN');
                   await pgClient.query('SAVEPOINT graphql_mutation');
                   const rows = await viaTemporaryTable(
                     pgClient,
@@ -166,10 +167,12 @@ returning *`;
                   );
                   row = rows[0];
                   await pgClient.query('RELEASE SAVEPOINT graphql_mutation');
+                  await pgClient.query('COMMIT');
                 } catch (e) {
                   await pgClient.query(
                     'ROLLBACK TO SAVEPOINT graphql_mutation',
                   );
+                  await pgClient.query('ROLLBACK');
                   throw e;
                 }
                 if (!row) {
@@ -615,4 +618,4 @@ returning *`;
     },
     ['PgMutationUpdateDelete'],
   );
-}: Plugin);
+}

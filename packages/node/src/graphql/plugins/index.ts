@@ -47,6 +47,14 @@ import ConnectionFilterPlugin from 'postgraphile-plugin-connection-filter';
 import PgConnectionArgFirstLastBeforeAfter from './PgConnectionArgFirstLastBeforeAfter';
 import PgBackwardRelationPlugin from './PgBackwardRelationPlugin';
 
+// nftmart plugins
+import PgMutationPayloadEdgePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationPayloadEdgePlugin';
+import PgMutationProceduresPlugin from 'graphile-build-pg/node8plus/plugins/PgMutationProceduresPlugin';
+import PgMutationCreatePlugin from './PgMutationCreatePlugin';
+import PgMutationUpdateDeletePlugin from './PgMutationUpdateDeletePlugin';
+// import PgMutationCreatePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationCreatePlugin';
+// import PgMutationUpdateDeletePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationUpdateDeletePlugin';
+
 /* eslint-enable */
 
 export const defaultPlugins = [
@@ -92,9 +100,17 @@ export const pgDefaultPlugins = [
   PgConnectionTotalCount,
 ];
 
+export const nftmartPlugins = [
+  PgMutationCreatePlugin,
+  PgMutationPayloadEdgePlugin,
+  PgMutationProceduresPlugin,
+  PgMutationUpdateDeletePlugin,
+];
+
 export const plugins = [
   ...defaultPlugins,
   ...pgDefaultPlugins,
+  ...nftmartPlugins,
   PgSimplifyInflectorPlugin,
   PgManyToManyPlugin,
   ConnectionFilterPlugin,

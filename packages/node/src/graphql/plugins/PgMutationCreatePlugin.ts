@@ -4,10 +4,10 @@ import debugFactory from 'debug';
 
 const debug = debugFactory('graphile-build-pg');
 
-export default (function PgMutationCreatePlugin(
+export default function PgMutationCreatePlugin(
   builder,
   { pgDisableDefaultMutations },
-) {
+): Plugin {
   if (pgDisableDefaultMutations) {
     return;
   }
@@ -246,6 +246,7 @@ insert into ${sql.identifier(table.namespace.name, table.name)} ${
 
                       let row;
                       try {
+                        await pgClient.query('BEGIN');
                         await pgClient.query('SAVEPOINT graphql_mutation');
                         const rows = await viaTemporaryTable(
                           pgClient,
@@ -258,10 +259,12 @@ insert into ${sql.identifier(table.namespace.name, table.name)} ${
                         await pgClient.query(
                           'RELEASE SAVEPOINT graphql_mutation',
                         );
+                        await pgClient.query('COMMIT');
                       } catch (e) {
                         await pgClient.query(
                           'ROLLBACK TO SAVEPOINT graphql_mutation',
                         );
+                        await pgClient.query('ROLLBACK');
                         throw e;
                       }
                       return {
@@ -295,4 +298,4 @@ insert into ${sql.identifier(table.namespace.name, table.name)} ${
     [],
     ['PgTables'],
   );
-}: Plugin);
+}
