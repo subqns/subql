@@ -10,24 +10,10 @@ var store: Store;
 var api: ApiPromise;
 var logger: Pino.Logger;
 
-function setStore(s: Store) {
-  store = s;
+function setGlobal(vars: {logger: Pino.Logger; api: ApiPromise; store: Store}) {
+  store = vars.store;
+  api = vars.api;
+  logger = vars.logger;
 }
 
-function setApi(a: ApiPromise) {
-  api = a;
-}
-
-function setLogger(l: Pino.Logger) {
-  logger = l;
-}
-
-/*
-declare global {
-  var api: ApiPromise;
-  var logger: Pino.Logger;
-  var store: Store;
-}
-*/
-
-export {setStore, store, setApi, api, setLogger, logger};
+export {store, api, logger, setGlobal};

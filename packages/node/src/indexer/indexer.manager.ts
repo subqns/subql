@@ -18,7 +18,7 @@ import { FetchService } from './fetch.service';
 import { StoreService } from './store.service';
 import { BlockContent } from './types';
 import { handleBlock, handleCall, handleEvent } from '@nftmart/subql';
-import { setApi, setStore } from '@subql/types';
+import { setGlobal } from '@subql/types';
 
 const DEFAULT_DB_SCHEMA = 'public';
 
@@ -116,8 +116,11 @@ export class IndexerManager {
     this.api = this.apiService.getApi();
     this.subqueryState = await this.ensureProject(this.nodeConfig.subqueryName);
     await this.initDbSchema();
-    setApi(await this.apiService.getPatchedApi());
-    setStore(this.storeService.getStore());
+    setGlobal({
+      api: await this.apiService.getPatchedApi(),
+      store: this.storeService.getStore(),
+      logger: getLogger('nftmart'),
+    });
     void this.fetchService
       .startLoop(this.subqueryState.nextBlockHeight)
       .catch((err) => {
