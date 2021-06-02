@@ -5,15 +5,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { IndexerManager } from './indexer/indexer.manager';
 import { getLogger, NestLogger } from './utils/logger';
-import { argv } from './yargs';
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 async function bootstrap() {
-  const debug = argv('debug');
-  const app = await NestFactory.create(AppModule, {
-    logger: debug ? new NestLogger() : false,
-  });
+  const app = await NestFactory.create(AppModule);
   const indexerManager = app.get(IndexerManager);
   await indexerManager.start();
   await app.init();
