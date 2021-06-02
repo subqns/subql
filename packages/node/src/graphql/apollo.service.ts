@@ -22,11 +22,15 @@ export class ApolloService {
     const dbSchema = await this.projectService.getProjectSchema(
       this.config.get('name'),
     );
-    const builder = await getPostGraphileBuilder(this.pgPool, [dbSchema], {
-      replaceAllPlugins: plugins,
-      subscriptions: true,
-      dynamicJson: true,
-    });
+    const builder = await getPostGraphileBuilder(
+      this.pgPool,
+      ['public', dbSchema],
+      {
+        replaceAllPlugins: plugins,
+        subscriptions: true,
+        dynamicJson: true,
+      },
+    );
 
     const schema = builder.buildSchema();
     const apolloServer = new ApolloServer({
