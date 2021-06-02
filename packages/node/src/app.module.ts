@@ -9,6 +9,7 @@ import { DbModule } from './db/db.module';
 import { IndexerModule } from './indexer/indexer.module';
 import { MetaModule } from './meta/meta.module';
 import { GraphqlModule } from './graphql/graphql.module';
+import { RouterModule } from './router/router.module';
 
 export class NodeOption {}
 
@@ -27,6 +28,7 @@ export class NodeOption {}
     IndexerModule,
     MetaModule,
     GraphqlModule,
+    RouterModule,
   ],
   controllers: [],
 })
