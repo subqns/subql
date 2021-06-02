@@ -36,6 +36,12 @@
     {"path": "packages/nftmart"},
     {"path": "packages/validator"}
   ],
+  "ts-node": {
+    "transpileOnly": true,
+    "files": true,
+    "compilerOptions": {
+    }
+  },
   "include": ["packages/**/*"],
   "exclude": ["**/node_modules/**"],
   "typeRoots": ["./node_modules/@types"]
