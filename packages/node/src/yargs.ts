@@ -19,7 +19,6 @@ export function getYargsOption() {
       demandOption: false,
       describe: 'Name of the subquery project',
       type: 'string',
-      default: 'nftmart',
     },
     config: {
       alias: 'c',
@@ -31,6 +30,17 @@ export function getYargsOption() {
       type: 'boolean',
       demandOption: false,
       describe: 'Use local mode',
+    },
+    help: {
+      alias: 'h',
+      type: 'boolean',
+      demandOption: false,
+      describe: 'Show help',
+    },
+    playground: {
+      type: 'boolean',
+      demandOption: false,
+      describe: 'Enable graphql playground',
     },
     'batch-size': {
       demandOption: false,

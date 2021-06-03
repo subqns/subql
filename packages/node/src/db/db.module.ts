@@ -3,6 +3,7 @@
 
 import { DynamicModule, Global } from '@nestjs/common';
 import { Sequelize } from 'sequelize';
+import { Pool } from 'pg';
 import { Options as SequelizeOption } from 'sequelize/types';
 import * as entities from '../entities';
 import { getLogger } from '../utils/logger';
@@ -50,6 +51,21 @@ const sequelizeFactory = (option: SequelizeOption) => async () => {
   return sequelize;
 };
 
+const poolFactory = (option: DbOption) => async () => {
+  const pgPool = new Pool({
+    user: option.username,
+    password: option.password,
+    host: option.host,
+    port: option.port,
+    database: option.database,
+  });
+  pgPool.on('error', (err) => {
+    // tslint:disable-next-line no-console
+    getLogger('db').error('PostgreSQL client generated error: ', err.message);
+  });
+  return pgPool;
+};
+
 @Global()
 export class DbModule {
   static forRoot(option: DbOption): DynamicModule {
@@ -70,8 +86,14 @@ export class DbModule {
               : false,
           }),
         },
+        {
+          provide: Pool,
+          useFactory: poolFactory({
+            ...option,
+          }),
+        },
       ],
-      exports: [Sequelize],
+      exports: [Sequelize, Pool],
     };
   }
 
