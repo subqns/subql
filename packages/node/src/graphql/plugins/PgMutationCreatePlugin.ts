@@ -247,9 +247,7 @@ insert into ${sql.identifier(table.namespace.name, table.name)} ${
                       let row;
                       try {
                         await pgClient.query('BEGIN');
-                        console.log('began');
                         await pgClient.query('SAVEPOINT graphql_mutation');
-                        console.log('savepoint created');
                         const rows = await viaTemporaryTable(
                           pgClient,
                           sql.identifier(table.namespace.name, table.name),
@@ -257,7 +255,6 @@ insert into ${sql.identifier(table.namespace.name, table.name)} ${
                           insertedRowAlias,
                           query,
                         );
-                        console.log('via called');
                         row = rows[0];
                         await pgClient.query(
                           'RELEASE SAVEPOINT graphql_mutation',

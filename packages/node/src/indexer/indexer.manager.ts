@@ -29,6 +29,7 @@ export class IndexerManager implements OnModuleInit {
   private api: ApiPromise;
   private subqueryState: SubqueryModel;
   private prevSpecVersion?: number;
+  private initialized: boolean;
 
   constructor(
     protected apiService: ApiService,
@@ -50,7 +51,6 @@ export class IndexerManager implements OnModuleInit {
       height: block.block.header.number.toNumber(),
       timestamp: Date.now(),
     });
-    // const tx = await this.sequelize.transaction();
 
     try {
       const inject = block.specVersion !== this.prevSpecVersion;
@@ -114,7 +114,8 @@ export class IndexerManager implements OnModuleInit {
     }
   }
 
-  async start(): Promise<void> {
+  async init(): Promise<void> {
+    if (this.initialized) return;
     await this.apiService.init();
     await this.fetchService.init();
     this.api = this.apiService.getApi();
@@ -125,6 +126,10 @@ export class IndexerManager implements OnModuleInit {
       store: this.storeService.getStore(),
       logger: getLogger('nftmart'),
     });
+    this.initialized = true;
+  }
+
+  async start(): Promise<void> {
     void this.fetchService
       .startLoop(this.subqueryState.nextBlockHeight)
       .catch((err) => {

@@ -1,7 +1,7 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Pool } from 'pg';
 import { NodeConfig } from '../configure/NodeConfig';
 import { ProjectService } from './project.service';
@@ -11,12 +11,14 @@ import { getLogger } from '../utils/logger';
 import { plugins } from './plugins';
 
 @Injectable()
-export class ApolloService {
+export class ApolloService implements OnModuleInit {
   constructor(
     private readonly config: NodeConfig,
     private readonly pgPool: Pool,
     private readonly projectService: ProjectService,
   ) {}
+
+  async onModuleInit(): Promise<void> {}
 
   async createServer(): Promise<ApolloServer> {
     const dbSchema = await this.projectService.getProjectSchema(
@@ -35,8 +37,8 @@ export class ApolloService {
     const schema = builder.buildSchema();
     const apolloServer = new ApolloServer({
       schema,
-      context: {
-        pgClient: this.pgPool,
+      context: ({ req }) => {
+        return { pgClient: this.pgPool };
       },
       cacheControl: {
         defaultMaxAge: 5,

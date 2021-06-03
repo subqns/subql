@@ -1,24 +1,33 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Module,
+  OnModuleDestroy,
+  OnModuleInit,
+  OnApplicationBootstrap,
+} from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ApolloServer } from 'apollo-server-express';
 import ExpressPinoLogger from 'express-pino-logger';
 import { ApolloService } from '../graphql/apollo.service';
 import { getLogger } from '../utils/logger';
 import { GraphqlModule } from '../graphql/graphql.module';
+import { IndexerModule } from '../indexer/indexer.module';
 
 @Module({
-  imports: [GraphqlModule],
+  imports: [GraphqlModule, IndexerModule],
 })
-export class RouterModule implements OnModuleInit, OnModuleDestroy {
+export class RouterModule
+  implements OnModuleInit, OnModuleDestroy, OnApplicationBootstrap {
   private apolloServer: ApolloServer;
 
   constructor(
     private readonly apolloService: ApolloService,
     private readonly httpAdapterHost: HttpAdapterHost,
   ) {}
+
+  async onApplicationBootstrap(): Promise<void> {}
 
   async onModuleInit(): Promise<void> {
     if (!this.httpAdapterHost) {
