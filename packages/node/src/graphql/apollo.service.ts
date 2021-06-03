@@ -3,7 +3,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
-import { QueryConfig } from '../configure/QueryConfig';
+import { NodeConfig } from '../configure/NodeConfig';
 import { ProjectService } from './project.service';
 import { ApolloServer } from 'apollo-server-express';
 import { getPostGraphileBuilder } from 'postgraphile-core';
@@ -13,14 +13,14 @@ import { plugins } from './plugins';
 @Injectable()
 export class ApolloService {
   constructor(
-    private readonly config: QueryConfig,
+    private readonly config: NodeConfig,
     private readonly pgPool: Pool,
     private readonly projectService: ProjectService,
   ) {}
 
   async createServer(): Promise<ApolloServer> {
     const dbSchema = await this.projectService.getProjectSchema(
-      this.config.get('name'),
+      this.config.subqueryName,
     );
     const builder = await getPostGraphileBuilder(
       this.pgPool,
@@ -41,8 +41,8 @@ export class ApolloService {
       cacheControl: {
         defaultMaxAge: 5,
       },
-      debug: this.config.get('NODE_ENV') !== 'production',
-      playground: this.config.get('playground'),
+      debug: process.env.NODE_ENV !== 'production',
+      playground: this.config.playground,
       subscriptions: {
         path: '/subscription',
       },

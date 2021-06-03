@@ -13,6 +13,7 @@ import { assign } from '../utils/object';
 export interface IConfig {
   readonly configDir?: string;
   readonly subquery: string;
+  readonly playground: boolean;
   readonly subqueryName: string;
   readonly localMode: boolean;
   readonly batchSize: number;
@@ -30,6 +31,7 @@ export type MinConfig = Partial<Omit<IConfig, 'subqueryName' | 'subquery'>> &
   Pick<IConfig, 'subqueryName' | 'subquery'>;
 
 const DEFAULT_CONFIG = {
+  playground: true,
   localMode: false,
   batchSize: 100,
   timeout: 20,
@@ -82,6 +84,9 @@ export class NodeConfig implements IConfig {
 
   get localMode(): boolean {
     return this._config.localMode;
+  }
+  get playground(): boolean {
+    return this._config.playground;
   }
 
   get batchSize(): number {

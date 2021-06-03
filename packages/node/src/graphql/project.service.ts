@@ -3,13 +3,15 @@
 
 import { Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
-import { QueryConfig } from '../configure/QueryConfig';
+import { NodeConfig } from '../configure/NodeConfig';
+import { IndexerManager } from '../indexer/indexer.manager';
 
 @Injectable()
 export class ProjectService {
   constructor(
     private readonly pool: Pool,
-    private readonly config: QueryConfig,
+    private readonly config: NodeConfig,
+    private readonly indexerManager: IndexerManager,
   ) {}
 
   async getProjectSchema(name: string): Promise<string> {
@@ -20,7 +22,7 @@ export class ProjectService {
       [name],
     );
     if (rows.length === 0) {
-      throw new Error(`unknown project name ${this.config.get('name')}`);
+      throw new Error(`unknown project name ${this.config.subqueryName}`);
     }
     return rows[0].db_schema;
   }
