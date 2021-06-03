@@ -169,9 +169,6 @@ returning *`;
                   await pgClient.query('RELEASE SAVEPOINT graphql_mutation');
                   await pgClient.query('COMMIT');
                 } catch (e) {
-                  await pgClient.query(
-                    'ROLLBACK TO SAVEPOINT graphql_mutation',
-                  );
                   await pgClient.query('ROLLBACK');
                   throw e;
                 }
