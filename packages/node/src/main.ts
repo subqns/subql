@@ -10,8 +10,6 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const indexerManager = app.get(IndexerManager);
-  await indexerManager.start();
   await app.init();
   await app.listen(PORT);
   getLogger('subql-node').info(`node started on ${PORT}`);

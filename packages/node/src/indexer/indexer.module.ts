@@ -18,6 +18,6 @@ import { StoreService } from './store.service';
     FetchService,
     BenchmarkService,
   ],
-  exports: [],
+  exports: [IndexerManager],
 })
 export class IndexerModule {}

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import path from 'path';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
 import { buildSchema, getAllEntitiesRelations, SubqlKind } from '@subql/common';
@@ -25,7 +25,7 @@ const DEFAULT_DB_SCHEMA = 'public';
 const logger = getLogger('indexer');
 
 @Injectable()
-export class IndexerManager {
+export class IndexerManager implements OnModuleInit {
   private api: ApiPromise;
   private subqueryState: SubqueryModel;
   private prevSpecVersion?: number;
@@ -40,6 +40,10 @@ export class IndexerManager {
     @Inject('Subquery') protected subqueryRepo: SubqueryRepo,
     private eventEmitter: EventEmitter2,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    await this.start();
+  }
 
   async indexBlock({ block, events, extrinsics }: BlockContent): Promise<void> {
     this.eventEmitter.emit(IndexerEvent.BlockProcessing, {
