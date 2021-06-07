@@ -21,6 +21,8 @@ import { IndexerModule } from '../indexer/indexer.module';
 export class RouterModule
   implements OnModuleInit, OnModuleDestroy, OnApplicationBootstrap {
   private apolloServer: ApolloServer;
+  private apolloHandler: any;
+  private swaggerHandler: any;
 
   constructor(
     private readonly apolloService: ApolloService,
@@ -33,6 +35,8 @@ export class RouterModule
     if (!this.httpAdapterHost) {
       return;
     }
+    this.apolloHandler = await this.apolloService.createHandler();
+    this.swaggerHandler = await this.apolloService.createSwagger();
     this.apolloServer = await this.apolloService.createServer();
     await this.installServer();
   }
@@ -53,12 +57,14 @@ export class RouterModule
         },
       }),
     );
-
+    app.use(this.apolloHandler);
+    //return;
+    //app.use('/api', ...this.swaggerHandler);
     this.apolloServer.applyMiddleware({
       app,
       path: '/',
       cors: true,
     });
-    this.apolloServer.installSubscriptionHandlers(httpServer);
+    //this.apolloServer.installSubscriptionHandlers(httpServer);
   }
 }

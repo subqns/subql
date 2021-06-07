@@ -50,6 +50,7 @@ import PgBackwardRelationPlugin from './PgBackwardRelationPlugin';
 // nftmart plugins
 import PgMutationPayloadEdgePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationPayloadEdgePlugin';
 import PgMutationProceduresPlugin from 'graphile-build-pg/node8plus/plugins/PgMutationProceduresPlugin';
+import PgJWTPlugin from 'graphile-build-pg/node8plus/plugins/PgJWTPlugin';
 import PgMutationCreatePlugin from './PgMutationCreatePlugin';
 import PgMutationUpdateDeletePlugin from './PgMutationUpdateDeletePlugin';
 // import PgMutationCreatePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationCreatePlugin';
@@ -74,7 +75,7 @@ export const pgDefaultPlugins = [
   PgBasicsPlugin,
   PgIntrospectionPlugin,
   PgTypesPlugin,
-  // PgJWTPlugin,
+  PgJWTPlugin,
   PgTablesPlugin,
   PgConnectionArgFirstLastBeforeAfter,
   PgConnectionArgOrderBy,
