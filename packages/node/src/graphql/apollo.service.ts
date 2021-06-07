@@ -29,35 +29,30 @@ export class ApolloService implements OnModuleInit {
     const dbSchema = await this.projectService.getProjectSchema(
       this.config.subqueryName,
     );
-    return postgraphile(
-      this.pgPool,
-      ['auth_public', 'public', dbSchema],
-      //['public', dbSchema],
-      {
-        retryOnInitFail: true,
-        dynamicJson: true,
-        bodySizeLimit: '5MB',
-        // pgDefaultRole: DB_DEFAULT_ROLE,
-        graphiql: !isProd,
-        allowExplain: !isProd,
-        enableCors: !isProd,
-        replaceAllPlugins: plugins,
-        subscriptions: true,
-        jwtSecret: 'super_secret',
-        jwtPgTypeIdentifier: 'auth_public.jwt',
-        // appendPlugins: [FilterPlugin, PgSimplifyInflectorPlugin],
-        // skipPlugins: [],
-        enhanceGraphiql: true,
-        exportGqlSchemaPath: 'schema.graphql',
-        enableQueryBatching: true,
-        sortExport: true,
-        setofFunctionsContainNulls: false,
-        graphileBuildOptions: {
-          connectionFilterAllowNullInput: true,
-          connectionFilterRelations: true,
-        },
+    return postgraphile(this.pgPool, [dbSchema, 'public', 'auth_public'], {
+      graphiqlRoute: '/',
+      graphqlRoute: '/graphql',
+      retryOnInitFail: true,
+      dynamicJson: true,
+      bodySizeLimit: '5MB',
+      // pgDefaultRole: DB_DEFAULT_ROLE,
+      graphiql: !isProd,
+      allowExplain: !isProd,
+      enableCors: !isProd,
+      replaceAllPlugins: plugins,
+      subscriptions: true,
+      jwtSecret: 'super_secret', // TODO: make configurable
+      jwtPgTypeIdentifier: 'auth_public.jwt', // TODO: make configurable
+      enhanceGraphiql: true,
+      exportGqlSchemaPath: 'schema.graphql',
+      enableQueryBatching: true,
+      sortExport: true,
+      setofFunctionsContainNulls: false,
+      graphileBuildOptions: {
+        connectionFilterAllowNullInput: true,
+        connectionFilterRelations: true,
       },
-    );
+    });
   }
 
   async createSwagger() {

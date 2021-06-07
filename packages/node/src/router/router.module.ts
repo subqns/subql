@@ -14,15 +14,14 @@ import { ApolloService } from '../graphql/apollo.service';
 import { getLogger } from '../utils/logger';
 import { GraphqlModule } from '../graphql/graphql.module';
 import { IndexerModule } from '../indexer/indexer.module';
+import express from 'express';
 
 @Module({
   imports: [GraphqlModule, IndexerModule],
 })
 export class RouterModule
   implements OnModuleInit, OnModuleDestroy, OnApplicationBootstrap {
-  private apolloServer: ApolloServer;
   private apolloHandler: any;
-  private swaggerHandler: any;
 
   constructor(
     private readonly apolloService: ApolloService,
@@ -36,35 +35,15 @@ export class RouterModule
       return;
     }
     this.apolloHandler = await this.apolloService.createHandler();
-    this.swaggerHandler = await this.apolloService.createSwagger();
-    this.apolloServer = await this.apolloService.createServer();
-    await this.installServer();
+    await this.setupRouter();
   }
 
-  async onModuleDestroy(): Promise<void> {
-    return this.apolloServer?.stop();
-  }
+  async onModuleDestroy(): Promise<void> {}
 
-  async installServer(): Promise<void> {
+  async setupRouter(): Promise<void> {
     const app = this.httpAdapterHost.httpAdapter.getInstance();
-    const httpServer = this.httpAdapterHost.httpAdapter.getHttpServer();
-
-    app.use(
-      ExpressPinoLogger({
-        logger: getLogger('express'),
-        autoLogging: {
-          ignorePaths: ['/.well-known/apollo/server-health'],
-        },
-      }),
-    );
     app.use(this.apolloHandler);
-    //return;
-    //app.use('/api', ...this.swaggerHandler);
-    this.apolloServer.applyMiddleware({
-      app,
-      path: '/',
-      cors: true,
-    });
-    //this.apolloServer.installSubscriptionHandlers(httpServer);
+    express.static.mime.define({ 'text/plain': ['graphql'] });
+    app.use('/schema.graphql', express.static('schema.graphql'));
   }
 }
