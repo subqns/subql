@@ -26,24 +26,36 @@ export class ApolloService implements OnModuleInit {
 
   async createHandler() {
     const isProd = false;
+    const isJwt = false;
+    const jwtOptions = isJwt
+      ? {
+          jwtSecret: 'super_secret', // TODO: make configurable
+          jwtPgTypeIdentifier: 'auth_public.jwt', // TODO: make configurable
+        }
+      : {};
+    const jwtSchemas = isJwt ? ['auth_public'] : [];
+    const graphiqlOptions = isProd
+      ? {}
+      : {
+          graphiqlRoute: '/',
+          graphiql: true,
+          allowExplain: true,
+          enhanceGraphiql: true,
+        };
     const dbSchema = await this.projectService.getProjectSchema(
       this.config.subqueryName,
     );
-    return postgraphile(this.pgPool, [dbSchema, 'public', 'auth_public'], {
-      graphiqlRoute: '/',
+    return postgraphile(this.pgPool, [dbSchema, 'public', ...jwtSchemas], {
+      ...jwtOptions,
+      ...graphiqlOptions,
       graphqlRoute: '/graphql',
       retryOnInitFail: true,
       dynamicJson: true,
       bodySizeLimit: '5MB',
       // pgDefaultRole: DB_DEFAULT_ROLE,
-      graphiql: !isProd,
-      allowExplain: !isProd,
       enableCors: !isProd,
       replaceAllPlugins: plugins,
       subscriptions: true,
-      jwtSecret: 'super_secret', // TODO: make configurable
-      jwtPgTypeIdentifier: 'auth_public.jwt', // TODO: make configurable
-      enhanceGraphiql: true,
       exportGqlSchemaPath: 'schema.graphql',
       enableQueryBatching: true,
       sortExport: true,
