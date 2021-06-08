@@ -18,7 +18,7 @@ WORKDIR /app/packages
 
 # .git folder not available in heroku
 # RUN git submodule update --init --recursive
-RUN git clone -b subql https://github.com/subqns/nftmart-subql nftmart
+RUN git clone -b nftmart-staging https://github.com/subqns/nftmart-subql nftmart
 
 WORKDIR /app
 

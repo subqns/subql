@@ -30,7 +30,9 @@
     "vuepress": "next"
   },
   "resolutions": {
-    "@polkadot/api": "4.6.2"
+    "@polkadot/api": "latest",
+    "@polkadot/util": "latest",
+    "@polkadot/util-crypto": "latest"
   },
   "scripts": {
     "build": "yarn workspace @subql/node build",
