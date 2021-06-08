@@ -30,4 +30,4 @@ function MyRandomFieldPlugin(
   builder.hook('GraphQLObjectType:fields', myRandomField);
 }
 
-export default { MyRandomFieldPlugin };
+export { MyRandomFieldPlugin };

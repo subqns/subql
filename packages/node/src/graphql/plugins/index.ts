@@ -55,7 +55,7 @@ import PgMutationCreatePlugin from './PgMutationCreatePlugin';
 import PgMutationUpdateDeletePlugin from './PgMutationUpdateDeletePlugin';
 // import PgMutationCreatePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationCreatePlugin';
 // import PgMutationUpdateDeletePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationUpdateDeletePlugin';
-import MyRandomFieldPlugin from './randomField';
+import { MyRandomFieldPlugin } from './randomField';
 
 /* eslint-enable */
 
