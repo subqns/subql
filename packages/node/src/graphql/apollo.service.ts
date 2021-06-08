@@ -106,6 +106,17 @@ export class ApolloService implements OnModuleInit {
       context: ({ req }) => {
         return { pgClient: this.pgPool };
       },
+      /* if the isJwt is enabled , context.pgRole and context.jwtClaims would be set, for example:
+      pgRole: 'auth_authenticated',
+      jwtClaims: {
+        role: 'auth_authenticated',
+        user_id: 1,
+        iat: 1623047184,
+        exp: 1623133584,
+        aud: 'postgraphile',
+        iss: 'postgraphile'
+      }
+      */
       cacheControl: {
         defaultMaxAge: 5,
       },
