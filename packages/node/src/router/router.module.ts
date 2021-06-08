@@ -22,6 +22,7 @@ import express from 'express';
 export class RouterModule
   implements OnModuleInit, OnModuleDestroy, OnApplicationBootstrap {
   private apolloHandler: any;
+  private apolloServer: ApolloServer;
 
   constructor(
     private readonly apolloService: ApolloService,
@@ -35,6 +36,7 @@ export class RouterModule
       return;
     }
     this.apolloHandler = await this.apolloService.createHandler();
+    this.apolloServer = await this.apolloService.createApolloServer();
     await this.setupRouter();
   }
 
@@ -45,5 +47,11 @@ export class RouterModule
     app.use(this.apolloHandler);
     express.static.mime.define({ 'text/plain': ['graphql'] });
     app.use('/schema.graphql', express.static('schema.graphql'));
+
+    this.apolloServer.applyMiddleware({
+      app,
+      path: '/apollo',
+      cors: true,
+    });
   }
 }

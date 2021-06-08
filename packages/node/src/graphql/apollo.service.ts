@@ -11,8 +11,25 @@ import { getLogger } from '../utils/logger';
 import { plugins } from './plugins';
 import { postgraphile, createPostGraphileSchema } from 'postgraphile';
 import { OpenAPI, useSofa } from 'sofa-api';
-import { buildSchema } from '@subql/common';
 import swaggerUI from 'swagger-ui-express';
+import { applyMiddleware } from 'graphql-middleware';
+import { GraphQLSchema } from 'graphql';
+import { buildSchema, defaultPlugins } from 'graphile-build';
+import { printSchema } from 'graphql/utilities';
+
+const logInput = async (resolve, root, args, context, info) => {
+  console.log(`1. logInput: ${JSON.stringify(args)}`);
+  const result = await resolve(root, args, context, info);
+  console.log(`5. logInput`);
+  return result;
+};
+
+const logResult = async (resolve, root, args, context, info) => {
+  console.log(`2. logResult`);
+  const result = await resolve(root, args, context, info);
+  console.log(`4. logResult: ${JSON.stringify(result)}`);
+  return result;
+};
 
 @Injectable()
 export class ApolloService implements OnModuleInit {
@@ -31,6 +48,7 @@ export class ApolloService implements OnModuleInit {
       ? {
           jwtSecret: 'super_secret', // TODO: make configurable
           jwtPgTypeIdentifier: 'auth_public.jwt', // TODO: make configurable
+          pgDefaultRole: 'auth_anonymous',
         }
       : {};
     const jwtSchemas = isJwt ? ['auth_public'] : [];
@@ -52,7 +70,6 @@ export class ApolloService implements OnModuleInit {
       retryOnInitFail: true,
       dynamicJson: true,
       bodySizeLimit: '5MB',
-      // pgDefaultRole: DB_DEFAULT_ROLE,
       enableCors: !isProd,
       replaceAllPlugins: plugins,
       subscriptions: true,
@@ -67,18 +84,39 @@ export class ApolloService implements OnModuleInit {
     });
   }
 
-  async createSwagger() {
-    const graphqlSchema = buildSchema('schema.graphql');
-    // console.log(graphqlSchema);
-    const openApi = OpenAPI({
-      schema: graphqlSchema,
-      info: {
-        title: 'Example API',
-        version: '3.0.0',
+  async createApolloServer() {
+    const dbSchema = await this.projectService.getProjectSchema(
+      this.config.subqueryName,
+    );
+
+    const schema = await createPostGraphileSchema(
+      this.pgPool,
+      ['public', dbSchema],
+      {
+        replaceAllPlugins: plugins,
+        subscriptions: true,
+        dynamicJson: true,
+      },
+    );
+
+    const schemaWithMiddleware: GraphQLSchema = schema; // applyMiddleware(schema, logInput, logResult);
+
+    const apolloServer = new ApolloServer({
+      schema: schemaWithMiddleware,
+      context: ({ req }) => {
+        return { pgClient: this.pgPool };
+      },
+      cacheControl: {
+        defaultMaxAge: 5,
+      },
+      debug: process.env.NODE_ENV !== 'production',
+      playground: this.config.playground,
+      subscriptions: {
+        path: '/subscription',
       },
     });
-    const options = { explorer: true };
-    return [swaggerUI.serve, swaggerUI.setup(openApi.get(), options)];
+
+    return apolloServer;
   }
 
   async createServer(): Promise<ApolloServer> {
