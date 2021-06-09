@@ -55,7 +55,14 @@ import PgMutationCreatePlugin from './PgMutationCreatePlugin';
 import PgMutationUpdateDeletePlugin from './PgMutationUpdateDeletePlugin';
 // import PgMutationCreatePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationCreatePlugin';
 // import PgMutationUpdateDeletePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationUpdateDeletePlugin';
-import { MyRandomFieldPlugin, MyRandomPlugin } from './randomField';
+import {
+  MyRandomFieldPlugin,
+  MyRandomPlugin,
+  GlobalStringPlugin,
+  HeadersPlugin,
+  HijackRandomTypePlugin,
+  GlobalKvPlugin,
+} from './randomField';
 
 /* eslint-enable */
 
@@ -109,6 +116,10 @@ export const nftmartPlugins = [
   PgMutationUpdateDeletePlugin,
   MyRandomFieldPlugin,
   MyRandomPlugin,
+  GlobalStringPlugin,
+  HeadersPlugin,
+  HijackRandomTypePlugin,
+  GlobalKvPlugin,
 ];
 
 export const plugins = [

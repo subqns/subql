@@ -1,53 +1,174 @@
-import { makeExtendSchemaPlugin, gql } from 'graphile-utils';
+import {
+  makeExtendSchemaPlugin,
+  gql,
+  makeWrapResolversPlugin,
+} from 'graphile-utils';
 import { Plugin } from 'graphile-build';
 
-const MyRandomPlugin: Plugin = makeExtendSchemaPlugin(
-    () => ({
-      typeDefs: gql`
-        type RandomType {
-            hello(input: String): String
-            world(input: String): String
-        }
-        extend type Query {
-          myRandom: Int!
-          myRandomType: RandomType!
-          hello(name: String): String!
-          world(name: String): String!
-          jwt: String
-        }
-      `,
-      resolvers: {
-        Query: {
-          myRandom: (_query, args, context, resolveInfo) => {
-              console.log(_query, args)
-              return randomNumber(1, 100);
-          },
-          myRandomType: (_query, args, context, resolveInfo)=>{
-              console.log(_query, args, context, resolveInfo);
-              return 'help';
-          },
-          hello: (_query, args, context, resolveInfo) => {
-              console.log(_query, args);
-              return `hello ${args.name}`;
-          },
-          world: (_query, args, context, resolveInfo) => {
-            console.log(_query, args);
-            console.log('context.Self.name is', context);
-            return `world ${args.name}`;
-          },
-          jwt: (_query, args, context, resolveInfo)=>{
-            console.log(context.jwtClaims);
-            return `${JSON.stringify(context.jwtClaims)}`;
-          }
-        },
+var globalString: string;
+const GlobalStringPlugin: Plugin = makeExtendSchemaPlugin(() => ({
+  typeDefs: gql`
+    extend type Query {
+      globalString: String
+    }
+    extend type Mutation {
+      globalString(input: String): String
+    }
+  `,
+  resolvers: {
+    Query: {
+      globalString: () => {
+        return globalString;
       },
-    }),
-  )
+    },
+    Mutation: {
+      globalString: (_query, args, context, resolveInfo) => {
+        console.log('Mutation globalString', args);
+        globalString = args.input;
+        return globalString;
+      },
+    },
+  },
+}));
+
+var globalKv: { [key: string]: string } = {};
+const GlobalKvPlugin: Plugin = makeExtendSchemaPlugin(() => ({
+  typeDefs: gql`
+    extend type Query {
+      globalKv(key: String): JSON
+    }
+    extend type Mutation {
+      globalKv(key: String, value: String): JSON
+    }
+  `,
+  resolvers: {
+    Query: {
+      globalKv: (_query, args, context, resolveInfo) => {
+        if (args.key) {
+          return globalKv[args.key];
+        }
+        return globalKv;
+      },
+    },
+    Mutation: {
+      globalKv: (_query, args, context, resolveInfo) => {
+        console.log('Mutation globalKv', args);
+        globalKv[args.key] = args.value;
+        return globalKv;
+      },
+    },
+  },
+}));
+
+const HeadersPlugin: Plugin = makeExtendSchemaPlugin(() => ({
+  typeDefs: gql`
+    extend type Query {
+      headersArray: [[String]]
+      headers: JSON
+      method: String
+      url: String
+    }
+  `,
+  resolvers: {
+    Query: {
+      headersArray: (_query, args, context, resolveInfo) => {
+        return Object.entries(context.req.headers);
+      },
+      headers: (_query, args, context, resolveInfo) => {
+        return context.req.headers;
+      },
+      method: (_query, args, context, resolveInfo) => {
+        return context.req.method;
+      },
+      url: (_query, args, context, resolveInfo) => {
+        return context.req.url;
+      },
+    },
+  },
+}));
+
+class RandomType {
+  public name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+  public toString(): string {
+    return this.name;
+  }
+  public hello(args): string {
+    return `${this.name}: hello ${args.name}`;
+  }
+  public world(args): string {
+    return `${this.name}: world ${args.name}`;
+  }
+}
+
+async function hijackedHello(
+  resolve,
+  source: RandomType,
+  args,
+  context,
+  resolveInfo,
+) {
+  const result = source.hello(args);
+  console.log('result', result);
+  console.log('args', JSON.stringify(args));
+  console.log('source', source);
+  console.log('source.hello(args)', source.hello(args));
+  return `Hijacked: ${result}`;
+}
+
+const HijackRandomTypePlugin: Plugin = makeWrapResolversPlugin({
+  RandomType: {
+    hello: hijackedHello,
+  },
+});
+
+const MyRandomPlugin: Plugin = makeExtendSchemaPlugin(() => ({
+  typeDefs: gql`
+    type RandomType {
+      hello(name: String): String
+      world(name: String): String
+    }
+    extend type Query {
+      myRandom: Int!
+      myRandomType(name: String): RandomType!
+      hello(name: String): String!
+      world(name: String): String!
+      jwt: String
+    }
+  `,
+  resolvers: {
+    Query: {
+      myRandom: (_query, args, context, resolveInfo) => {
+        console.log(_query, args);
+        return randomNumber(1, 100);
+      },
+      myRandomType: (_query, args, context, resolveInfo) => {
+        // console.log(_query, args, context, resolveInfo);
+        return new RandomType(args.name);
+      },
+      hello: (_query, args, context, resolveInfo) => {
+        console.log(_query, args);
+        return `hello ${args.name}`;
+      },
+      world: (_query, args, context, resolveInfo) => {
+        console.log(_query, args);
+        console.log('context.Self.name is', context);
+        return `world ${args.name}`;
+      },
+      jwt: (_query, args, context, resolveInfo) => {
+        console.log(context.jwtClaims);
+        return `${JSON.stringify(context.jwtClaims)}`;
+      },
+    },
+  },
+}));
 
 // No imports required!
 
 function randomNumber(min: number = 1, max: number = 100, sides?: number) {
-    return Math.floor(Math.random() * ((sides||max) - min + 1)) + max;
+  return Math.floor(Math.random() * ((sides || max) - min + 1)) + max;
 }
 
 function MyRandomFieldPlugin(
@@ -60,10 +181,10 @@ function MyRandomFieldPlugin(
     context /* Context */,
   ) => {
     const {
-        scope: { isRootMutation, isRootQuery },
+      scope: { isRootMutation, isRootQuery },
     } = context;
     if (isRootQuery) {
-        return fields;
+      return fields;
     }
     return extend(fields, {
       randomField: {
@@ -83,4 +204,11 @@ function MyRandomFieldPlugin(
   builder.hook('GraphQLObjectType:fields', myRandomField);
 }
 
-export { MyRandomFieldPlugin, MyRandomPlugin };
+export {
+  MyRandomFieldPlugin,
+  MyRandomPlugin,
+  GlobalStringPlugin,
+  HeadersPlugin,
+  HijackRandomTypePlugin,
+  GlobalKvPlugin,
+};

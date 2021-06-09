@@ -81,6 +81,12 @@ export class ApolloService implements OnModuleInit {
         connectionFilterAllowNullInput: true,
         connectionFilterRelations: true,
       },
+      additionalGraphQLContextFromRequest: async (req, res) => {
+        return {
+          req,
+          res,
+        };
+      },
     });
   }
 
