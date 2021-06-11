@@ -46,8 +46,11 @@ export interface ProcessedField {
 }
 
 export async function generateJsonInterfaces(projectPath, schema: string) {
+  console.log(32);
   const typesDir = path.join(projectPath, TYPE_ROOT_DIR);
+  console.log(35);
   const jsonObjects = getAllJsonObjects(schema);
+  console.log(34);
   const jsonInterfaces = jsonObjects.map((r) => {
     const object = setJsonObjectType(r, jsonObjects);
     const fields = processFields('jsonField', object.name, object.fields);
@@ -56,6 +59,7 @@ export async function generateJsonInterfaces(projectPath, schema: string) {
       fields,
     };
   });
+  console.log(42);
 
   if (jsonInterfaces.length !== 0) {
     const interfaceTemplate = {
@@ -144,13 +148,18 @@ async function prepareDirPath(path: string, recreate: boolean) {
 
 //1. Prepare models directory and load schema
 export async function codegen(projectPath: string): Promise<void> {
+  console.log(3);
   const modelDir = path.join(projectPath, MODEL_ROOT_DIR);
   const interfacesPath = path.join(projectPath, TYPE_ROOT_DIR, `interfaces.ts`);
   await prepareDirPath(modelDir, true);
   await prepareDirPath(interfacesPath, false);
+  console.log(4);
   const manifest = loadProjectManifest(projectPath);
+  console.log(5);
   await generateJsonInterfaces(projectPath, path.join(projectPath, manifest.schema));
+  console.log(1);
   await generateModels(projectPath, path.join(projectPath, manifest.schema));
+  console.log(2);
   if (exportTypes.interfaces || exportTypes.models) {
     try {
       await renderTemplate(TYPES_INDEX_TEMPLATE_PATH, path.join(projectPath, TYPE_ROOT_DIR, `index.ts`), {

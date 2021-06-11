@@ -5,7 +5,11 @@ import path from 'path';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise } from '@polkadot/api';
-import { buildSchema, getAllEntitiesRelations, SubqlKind } from '@subql/common';
+import {
+  buildSchemaInlined,
+  getAllEntitiesRelations,
+  SubqlKind,
+} from '@subql/common';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { NodeConfig } from '../configure/NodeConfig';
 import { SubqueryProject } from '../configure/project.model';
@@ -201,12 +205,12 @@ export class IndexerManager implements OnModuleInit {
   }
 
   private async initDbSchema(): Promise<void> {
-    const schema = this.subqueryState.dbSchema;
-    const graphqlSchema = buildSchema(
+    const dbSchema = this.subqueryState.dbSchema;
+    const graphqlSchema = buildSchemaInlined(
       path.join(this.project.path, this.project.schema),
     );
     const modelsRelations = getAllEntitiesRelations(graphqlSchema);
-    await this.storeService.init(modelsRelations, schema);
+    await this.storeService.initdbSchema(modelsRelations, dbSchema);
   }
 
   private async nextSubquerySchemaSuffix(): Promise<number> {

@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@polkadot/api": "^4",
-    "@types/app-module-path": "^2.2.0"
+    "@types/app-module-path": "^2.2.0",
+    "typescript": "4.1.3"
   }
 }

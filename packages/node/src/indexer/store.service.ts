@@ -31,34 +31,50 @@ interface IndexField {
 export class StoreService {
   private tx?: Transaction;
   private modelIndexedFields: IndexField[];
-  private schema: string;
+  private dbSchema: string;
   private modelsRelations: GraphQLModelsRelations;
 
   constructor(private sequelize: Sequelize, private config: NodeConfig) {}
 
-  async init(
+  async initdbSchema(
     modelsRelations: GraphQLModelsRelations,
-    schema: string,
+    dbSchema: string,
   ): Promise<void> {
-    this.schema = schema;
+    this.dbSchema = dbSchema;
     this.modelsRelations = modelsRelations;
     try {
-      await this.syncSchema(this.schema);
+      await this.syncdbSchema(this.dbSchema);
     } catch (e) {
-      logger.error(e, `Having a problem when syncing schema`);
+      logger.error(e, `Having a problem when syncing dbSchema`);
       process.exit(1);
     }
     try {
-      this.modelIndexedFields = await this.getAllIndexFields(this.schema);
+      this.modelIndexedFields = await this.getAllIndexFields(this.dbSchema);
     } catch (e) {
       logger.error(e, `Having a problem when get indexed fields`);
       process.exit(1);
     }
   }
 
-  async syncSchema(schema: string): Promise<void> {
+  async syncdbSchema(dbSchema: string): Promise<void> {
     for (const model of this.modelsRelations.models) {
       const attributes = modelsTypeToModelAttributes(model);
+      if (model.name === 'Block') {
+        console.log(model.name, 'model', JSON.stringify(model, null, '  '));
+        console.log(
+          model.name,
+          'attributes',
+          JSON.stringify(attributes, null, '  '),
+        );
+      }
+      if (model.name === 'NftView') {
+        console.log(model.name, 'model', JSON.stringify(model, null, '  '));
+        console.log(
+          model.name,
+          'attributes',
+          JSON.stringify(attributes, null, '  '),
+        );
+      }
       const indexes = model.indexes.map(({ fields, unique, using }) => ({
         fields: fields.map((field) => Utils.underscoredIf(field, true)),
         unique,
@@ -70,8 +86,9 @@ export class StoreService {
       this.sequelize.define(model.name, attributes, {
         underscored: true,
         freezeTableName: false,
-        schema,
+        schema: dbSchema,
         indexes,
+        timestamps: false,
       });
     }
     const extraQueries = [];
@@ -96,12 +113,12 @@ export class StoreService {
           });
           extraQueries.push(
             commentConstraintQuery(
-              `${schema}.${rel.target.tableName}`,
+              `${dbSchema}.${rel.target.tableName}`,
               fkConstraint,
               tags,
             ),
             createUniqueIndexQuery(
-              schema,
+              dbSchema,
               relatedModel.tableName,
               relation.foreignKey,
             ),
@@ -121,7 +138,7 @@ export class StoreService {
           });
           extraQueries.push(
             commentConstraintQuery(
-              `${schema}.${rel.target.tableName}`,
+              `${dbSchema}.${rel.target.tableName}`,
               fkConstraint,
               tags,
             ),
@@ -139,12 +156,12 @@ export class StoreService {
     }
   }
 
-  private async getAllIndexFields(schema: string) {
+  private async getAllIndexFields(dbSchema: string) {
     const fields: IndexField[][] = [];
     for (const entity of this.modelsRelations.models) {
       const model = this.sequelize.model(entity.name);
       const tableFields = await this.packEntityFields(
-        schema,
+        dbSchema,
         entity.name,
         model.tableName,
       );
@@ -154,7 +171,7 @@ export class StoreService {
   }
 
   private async packEntityFields(
-    schema: string,
+    dbSchema: string,
     entity: string,
     table: string,
   ): Promise<IndexField[]> {
@@ -172,7 +189,7 @@ from
     pg_namespace n,
     pg_attribute a
 where
-  n.nspname = '${schema}'
+  n.nspname = '${dbSchema}'
   and tab.relname = '${table}'
   and a.attrelid = tab.oid
   and a.attnum = ANY(idx.indkey)

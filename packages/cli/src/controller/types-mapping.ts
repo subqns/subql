@@ -13,6 +13,7 @@ typeMap.set('Boolean', 'boolean');
 // TODO
 // typeMap.set('Float', 'number');
 // typeMap.set('BigDecimal', 'number');
+typeMap.set('Uuid', 'string');
 
 export function transformTypes(className: string, fieldType: string): string {
   const trimType = fieldType.trim();

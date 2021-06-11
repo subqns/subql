@@ -4,7 +4,7 @@
 import {Extrinsic, EventRecord, SignedBlock} from '@polkadot/types/interfaces';
 
 export interface Entity {
-  id: string;
+  id?: string;
 }
 
 export interface Store {

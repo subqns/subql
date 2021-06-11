@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { GraphQLModelsType } from '@subql/common/graphql/types';
-import { ModelAttributes, DataTypes } from 'sequelize';
+import { ModelAttributes, DataTypes, Sequelize } from 'sequelize';
 import { ModelAttributeColumnOptions } from 'sequelize/types/lib/model';
 
 const SEQUELIZE_TYPE_MAPPING = {
@@ -15,6 +15,7 @@ const SEQUELIZE_TYPE_MAPPING = {
   Boolean: 'boolean',
   Bytes: 'bytea',
   Json: DataTypes.JSONB,
+  Uuid: DataTypes.UUID,
 };
 
 export function modelsTypeToModelAttributes(
@@ -26,11 +27,16 @@ export function modelsTypeToModelAttributes(
     if (!field.nullable) {
       allowNull = false;
     }
-    const columnOption: ModelAttributeColumnOptions<any> = {
+    let columnOption: ModelAttributeColumnOptions<any> = {
       type: SEQUELIZE_TYPE_MAPPING[field.type],
       allowNull,
-      primaryKey: field.type === 'ID',
+      primaryKey: field.name === 'id',
+      //...((field.type == 'Uuid') ? { defaultValue: DataTypes.UUIDV4 } : {}),
     };
+    if (field.type === 'Uuid') {
+      console.log('setting default value to uuidv4');
+      columnOption.defaultValue = DataTypes.UUIDV4;
+    }
     if (field.type === 'BigInt') {
       columnOption.get = function () {
         const dataValue = this.getDataValue(field.name);

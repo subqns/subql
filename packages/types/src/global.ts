@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {ApiPromise} from '@polkadot/api';
-import {StorageEntryDoubleMap} from '@polkadot/api/types';
 import Pino from 'pino';
 import {Store} from './interfaces';
 

@@ -62,6 +62,8 @@ import {
   HeadersPlugin,
   HijackRandomTypePlugin,
   GlobalKvPlugin,
+  NftViewIdNullablePlugin,
+  NftViewPlugin,
 } from './randomField';
 
 /* eslint-enable */
@@ -120,6 +122,8 @@ export const nftmartPlugins = [
   HeadersPlugin,
   HijackRandomTypePlugin,
   GlobalKvPlugin,
+  NftViewIdNullablePlugin,
+  NftViewPlugin,
 ];
 
 export const plugins = [

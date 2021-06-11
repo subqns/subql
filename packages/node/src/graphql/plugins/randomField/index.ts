@@ -2,8 +2,71 @@ import {
   makeExtendSchemaPlugin,
   gql,
   makeWrapResolversPlugin,
+  makeChangeNullabilityPlugin,
+  makePluginByCombiningPlugins,
 } from 'graphile-utils';
 import { Plugin } from 'graphile-build';
+
+// https://www.graphile.org/postgraphile/make-change-nullability-plugin/
+const NftViewIdNullablePlugin = makePluginByCombiningPlugins(
+  // 1. make NftViewInput.id nullable:
+  makeChangeNullabilityPlugin({
+    NftViewInput: {
+      id: true,
+    },
+    CreateNftViewInput: {
+      nftViewInput: true,
+    },
+  }),
+  // 2: return null unless the user id matches the current logged in user_id
+  makeWrapResolversPlugin({
+    NftViewInput: {
+      id: {
+        resolve(resolver, source, args, context, _resolveInfo) {
+          // if (context.jwtClaims.user_id !== user.$user_id) return null;
+          console.log(source);
+          return resolver(source, args, context, _resolveInfo);
+        },
+      },
+    },
+  }),
+);
+
+const NftViewPlugin: Plugin = makeExtendSchemaPlugin(() => ({
+  typeDefs: gql`
+    extend type Mutation {
+      createNftViewFunc(viewerId: String, nftId: String): NftView
+    }
+  `,
+  resolvers: {
+    Mutation: {
+      createNftViewFunc: async (_query, args, context, resolveInfo) => {
+        console.log('Mutation createNftViewFunc', args);
+        let pgPool = context.pgClient;
+        await pgPool.query(
+          `CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA subquery_1 CASCADE`,
+        );
+        await pgPool.query(
+          `ALTER TABLE ONLY subquery_1.nft_views ALTER COLUMN id SET DEFAULT subquery_1.gen_random_uuid()`,
+        );
+        let { rows } = await pgPool.query(
+          `INSERT INTO subquery_1.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`,
+        );
+        let row = rows[0];
+        console.log(row);
+        return {
+          id: row.id,
+          id2: row.id2,
+          viewerId: row.viewer_id,
+          nftId: row.nft_id,
+          timestamp: row.timestamp,
+          createdAt: row.created_at,
+          updatedAt: row.updated_at,
+        };
+      },
+    },
+  },
+}));
 
 var globalString: string;
 const GlobalStringPlugin: Plugin = makeExtendSchemaPlugin(() => ({
@@ -211,4 +274,6 @@ export {
   HeadersPlugin,
   HijackRandomTypePlugin,
   GlobalKvPlugin,
+  NftViewIdNullablePlugin,
+  NftViewPlugin,
 };

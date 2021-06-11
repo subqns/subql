@@ -29,7 +29,9 @@ import {
 } from './types';
 
 export function getAllJsonObjects(_schema: GraphQLSchema | string) {
+  console.log(243);
   const schema = typeof _schema === 'string' ? buildSchema(_schema) : _schema;
+  console.log(242);
   return Object.values(schema.getTypeMap())
     .filter((node) => node.astNode?.directives?.find(({name: {value}}) => value === DirectiveName.JsonField))
     .map((node) => node)
@@ -37,6 +39,7 @@ export function getAllJsonObjects(_schema: GraphQLSchema | string) {
 }
 
 export function getAllEntitiesRelations(_schema: GraphQLSchema | string): GraphQLModelsRelations {
+  console.log(3244);
   const schema = typeof _schema === 'string' ? buildSchema(_schema) : _schema;
   const entities = Object.values(schema.getTypeMap())
     .filter((node) => node.astNode?.directives?.find(({name: {value}}) => value === DirectiveName.Entity))
@@ -98,6 +101,7 @@ export function getAllEntitiesRelations(_schema: GraphQLSchema | string): GraphQ
           using: IndexType.GIN,
         });
       } else {
+        console.log('throw');
         throw new Error(`${typeString} is not an valid type`);
       }
       // handle indexes

@@ -12,6 +12,7 @@ function loadBaseSchema(): GraphQLSchema {
 }
 
 export function buildSchema(path: string): GraphQLSchema {
+  console.log('233 buildSchema');
   const src = new Source(fs.readFileSync(path).toString());
   const doc = parse(src);
   return buildSchemaFromDocumentNode(doc);
@@ -19,4 +20,13 @@ export function buildSchema(path: string): GraphQLSchema {
 
 export function buildSchemaFromDocumentNode(doc: DocumentNode): GraphQLSchema {
   return extendSchema(loadBaseSchema(), doc);
+}
+
+export function buildSchemaInlined(path: string): GraphQLSchema {
+  const doc = parse(new Source(fs.readFileSync(path).toString()));
+  let schema: GraphQLSchema;
+  schema = buildASTSchema(scalas);
+  schema = extendSchema(schema, directives);
+  schema = extendSchema(schema, doc);
+  return schema;
 }
