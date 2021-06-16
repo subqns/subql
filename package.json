@@ -26,13 +26,13 @@
     "ts-loader": "^8.0.14",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^4.1.3",
     "vuepress": "next"
   },
   "resolutions": {
-    "@polkadot/api": "latest",
-    "@polkadot/util": "latest",
-    "@polkadot/util-crypto": "latest"
+    "@polkadot/api": "^4.14.1",
+    "@polkadot/util": "^6.8.1",
+    "@polkadot/util-crypto": "^6.8.1",
+    "typescript": "latest"
   },
   "scripts": {
     "build": "yarn workspace @subql/node build",

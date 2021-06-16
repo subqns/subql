@@ -178,7 +178,9 @@ export async function fetchBlocks(
   endHeight: number,
   overallSpecVer?: number,
 ): Promise<BlockContent[]> {
+  // console.log("fetchBlocks::fetchBlocksRange", startHeight, endHeight);
   const blocks = await fetchBlocksRange(api, startHeight, endHeight);
+  // console.log(`fetchBlocksRange is ok`);
   const blockHashs = blocks.map((b) => b.block.header.hash);
   const parentBlockHashs = blocks.map((b) => b.block.header.parentHash);
   const [blockEvents, runtimeVersions] = await Promise.all([
@@ -248,7 +250,13 @@ export async function fetchBlocksRange(
   return Promise.all(
     range(startHeight, endHeight + 1).map(async (height) => {
       const blockHash = await api.rpc.chain.getBlockHash(height);
-      return api.rpc.chain.getBlock(blockHash);
+      var block : SignedBlock;
+      try {
+        block = await api.rpc.chain.getBlock(blockHash);
+      } catch {
+        console.log(`height: ${height}, blockHash: ${blockHash}`);
+      }
+      return block;
     }),
   );
 }
@@ -257,6 +265,7 @@ export async function fetchEventsRange(
   api: ApiPromise,
   hashs: BlockHash[],
 ): Promise<Vec<EventRecord>[]> {
+  // console.log('fetchEventsRange');
   return Promise.all(hashs.map((hash) => api.query.system.events.at(hash)));
 }
 

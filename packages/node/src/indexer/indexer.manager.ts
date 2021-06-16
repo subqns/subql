@@ -26,7 +26,7 @@ import { setGlobal } from '@subql/types';
 
 const DEFAULT_DB_SCHEMA = 'public';
 
-const logger = getLogger('indexer');
+const logger = getLogger('index');
 
 @Injectable()
 export class IndexerManager implements OnModuleInit {
@@ -51,8 +51,11 @@ export class IndexerManager implements OnModuleInit {
   }
 
   async indexBlock({ block, events, extrinsics }: BlockContent): Promise<void> {
+    const blockHeight = block.block.header.number.toNumber();
+    const blockHash = block.block.header.hash.toString();
+    logger.info(`index block ${blockHeight} ${blockHash}`);
     this.eventEmitter.emit(IndexerEvent.BlockProcessing, {
-      height: block.block.header.number.toNumber(),
+      height: blockHeight,
       timestamp: Date.now(),
     });
 

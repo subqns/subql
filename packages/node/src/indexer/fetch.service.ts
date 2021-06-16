@@ -102,6 +102,7 @@ export class FetchService implements OnApplicationShutdown {
       }
       logger.info(`fetch block [${startBlockHeight}, ${endBlockHeight}]`);
       const metadataChanged = await this.fetchMeta(endBlockHeight);
+      // console.log("prefer range?", this.nodeConfig.preferRange, this.nodeConfig.preferRange ? true : false);
       const blocks = await (this.nodeConfig.preferRange
         ? SubstrateUtil.fetchBlocksViaRangeQuery(
             this.api,
