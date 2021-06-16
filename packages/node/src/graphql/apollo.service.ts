@@ -66,6 +66,7 @@ export class ApolloService implements OnModuleInit {
     return postgraphile(this.pgPool, [dbSchema, 'public', ...jwtSchemas], {
       ...jwtOptions,
       ...graphiqlOptions,
+      simpleCollections: 'both',
       graphqlRoute: '/graphql',
       retryOnInitFail: true,
       dynamicJson: true,
