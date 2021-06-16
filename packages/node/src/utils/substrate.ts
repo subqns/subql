@@ -179,7 +179,7 @@ export async function fetchBlocks(
   overallSpecVer?: number,
 ): Promise<BlockContent[]> {
   // console.log("fetchBlocks::fetchBlocksRange", startHeight, endHeight);
-  const blocks = await fetchBlocksRange(api, startHeight, endHeight);
+  const blocks = (await fetchBlocksRange(api, startHeight, endHeight)).filter(x=>x); // remove undefined
   // console.log(`fetchBlocksRange is ok`);
   const blockHashs = blocks.map((b) => b.block.header.hash);
   const parentBlockHashs = blocks.map((b) => b.block.header.parentHash);
