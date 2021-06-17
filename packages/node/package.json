@@ -10,6 +10,8 @@
     "build": "rm -rf dist && tsc -b",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "ts-node src/main.ts",
+    "start:node": "env APP=node ts-node src/main.ts",
+    "start:query": "env APP=query ts-node src/main.ts",
     "start:nest": "nest start",
     "start:dev": "nodemon",
     "start:prod": "node dist/main"
