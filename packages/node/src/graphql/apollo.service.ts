@@ -81,6 +81,7 @@ export class ApolloService implements OnModuleInit {
       graphileBuildOptions: {
         connectionFilterAllowNullInput: true,
         connectionFilterRelations: true,
+        pgOmitListSuffix: false,
       },
       additionalGraphQLContextFromRequest: async (req, res) => {
         return {
