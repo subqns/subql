@@ -13,11 +13,10 @@ import ExpressPinoLogger from 'express-pino-logger';
 import { ApolloService } from '../graphql/apollo.service';
 import { getLogger } from '../utils/logger';
 import { GraphqlModule } from '../graphql/graphql.module';
-import { IndexerModule } from '../indexer/indexer.module';
 import express from 'express';
 
 @Module({
-  imports: [GraphqlModule, IndexerModule],
+  imports: [GraphqlModule],
 })
 export class RouterModule
   implements OnModuleInit, OnModuleDestroy, OnApplicationBootstrap {

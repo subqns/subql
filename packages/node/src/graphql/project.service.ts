@@ -11,13 +11,11 @@ export class ProjectService {
   constructor(
     private readonly pool: Pool,
     private readonly config: NodeConfig,
-    private readonly indexerManager: IndexerManager,
   ) {}
 
   async onModuleInit(): Promise<void> {}
 
   async getProjectSchema(name: string): Promise<string> {
-    await this.indexerManager.init();
     const { rows } = await this.pool.query(
       `select *
        from public.subqueries

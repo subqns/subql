@@ -4,10 +4,9 @@
 import { Module } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ApolloService } from './apollo.service';
-import { IndexerModule } from '../indexer/indexer.module';
 
 @Module({
-  imports: [IndexerModule],
+  imports: [],
   providers: [ProjectService, ApolloService],
   exports: [ApolloService],
 })
