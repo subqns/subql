@@ -16,6 +16,7 @@ export function getYargsOption() {
       default: '../nftmart',
     },
     'subquery-name': {
+      alias: 'n',
       demandOption: false,
       describe: 'Name of the subquery project',
       type: 'string',
