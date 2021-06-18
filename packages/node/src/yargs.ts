@@ -31,12 +31,6 @@ export function getYargsOption() {
       demandOption: false,
       describe: 'Use local mode',
     },
-    help: {
-      alias: 'h',
-      type: 'boolean',
-      demandOption: false,
-      describe: 'Show help',
-    },
     playground: {
       type: 'boolean',
       demandOption: false,

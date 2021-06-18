@@ -42,8 +42,11 @@ export class ConfigureModule {
     const yargsOptions = getYargsOption();
     const { argv } = yargsOptions;
     let config: NodeConfig;
-    if (argv.help) {
+    if (argv.h) {
       yargsOptions.showHelp();
+      if (argv.debug) {
+        console.log(argv);
+      }
       process.exit(1);
     }
     if (argv.config) {
