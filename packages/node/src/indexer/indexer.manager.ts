@@ -166,9 +166,7 @@ export class IndexerManager implements OnModuleInit {
   }
 
   private async ensureProject(name: string): Promise<SubqueryModel> {
-    let project = await this.subqueryRepo.findOne({
-      where: { name: this.nodeConfig.subqueryName },
-    });
+    let project = await this.subqueryRepo.findOne({where: {name}});
     const { chain, genesisHash } = this.apiService.networkMeta;
     if (!project) {
       let projectSchema: string;
@@ -176,8 +174,7 @@ export class IndexerManager implements OnModuleInit {
         // create tables in default schema if local mode is enabled
         projectSchema = DEFAULT_DB_SCHEMA;
       } else {
-        const suffix = await this.nextSubquerySchemaSuffix();
-        projectSchema = `subquery_${suffix}`;
+        projectSchema = `subquery_${name}`;
         const schemas = await this.sequelize.showAllSchemas(undefined);
         if (!((schemas as unknown) as string[]).includes(projectSchema)) {
           await this.sequelize.createSchema(projectSchema, undefined);
@@ -216,6 +213,7 @@ export class IndexerManager implements OnModuleInit {
     await this.storeService.initdbSchema(modelsRelations, dbSchema);
   }
 
+  // deprecated
   private async nextSubquerySchemaSuffix(): Promise<number> {
     const seqExists = await this.sequelize.query(
       `SELECT 1

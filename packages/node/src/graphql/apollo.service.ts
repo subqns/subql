@@ -87,6 +87,7 @@ export class ApolloService implements OnModuleInit {
         return {
           req,
           res,
+          projectSchema: dbSchema,
         };
       },
     });
@@ -112,7 +113,10 @@ export class ApolloService implements OnModuleInit {
     const apolloServer = new ApolloServer({
       schema: schemaWithMiddleware,
       context: ({ req }) => {
-        return { pgClient: this.pgPool };
+        return {
+          projectSchema: dbSchema,
+          pgClient: this.pgPool,
+        };
       },
       /* if the isJwt is enabled , context.pgRole and context.jwtClaims would be set, for example:
       pgRole: 'auth_authenticated',
@@ -189,7 +193,10 @@ export class ApolloService implements OnModuleInit {
         console.log(req.method);
         console.log(req.body);
         // req.res.write();
-        return { pgClient: this.pgPool };
+        return {
+          projectSchema: dbSchema,
+          pgClient: this.pgPool,
+        };
       },
       cacheControl: {
         defaultMaxAge: 5,

@@ -41,16 +41,17 @@ const NftViewPlugin: Plugin = makeExtendSchemaPlugin(() => ({
   resolvers: {
     Mutation: {
       createNftViewFunc: async (_query, args, context, resolveInfo) => {
+        let dbSchema = context.projectSchema;
         console.log('Mutation createNftViewFunc', args);
         let pgPool = context.pgClient;
         await pgPool.query(
-          `CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA subquery_1 CASCADE`,
+          `CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA ${dbSchema} CASCADE`,
         );
         await pgPool.query(
-          `ALTER TABLE ONLY subquery_1.nft_views ALTER COLUMN id SET DEFAULT subquery_1.gen_random_uuid()`,
+          `ALTER TABLE ONLY ${dbSchema}.nft_views ALTER COLUMN id SET DEFAULT ${dbSchema}.gen_random_uuid()`,
         );
         let { rows } = await pgPool.query(
-          `INSERT INTO subquery_1.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`,
+          `INSERT INTO ${dbSchema}.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`,
         );
         let row = rows[0];
         console.log(row);
