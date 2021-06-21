@@ -16,6 +16,7 @@ export interface DbOption {
   username: string;
   password: string;
   database: string;
+  ssl: boolean;
 }
 
 const logger = getLogger('db');
@@ -58,6 +59,7 @@ const poolFactory = (option: DbOption) => async () => {
     host: option.host,
     port: option.port,
     database: option.database,
+    ssl: option.ssl,
   });
   pgPool.on('error', (err) => {
     // tslint:disable-next-line no-console

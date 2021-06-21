@@ -21,6 +21,7 @@ export class NodeOption {}
       username: process.env.DB_USER ?? 'postgres',
       password: process.env.DB_PASS ?? 'postgres',
       database: process.env.DB_DATABASE ?? 'postgres',
+      ssl: !!process.env.DB_SSL,
     }),
     EventEmitterModule.forRoot(),
     ConfigureModule.register(),
