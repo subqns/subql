@@ -35,7 +35,7 @@ export class RouterModule
       return;
     }
     this.apolloHandler = await this.apolloService.createHandler();
-    this.apolloServer = await this.apolloService.createApolloServer();
+    // this.apolloServer = await this.apolloService.createApolloServer();
     await this.setupRouter();
   }
 
@@ -46,7 +46,7 @@ export class RouterModule
     app.use(this.apolloHandler);
     express.static.mime.define({ 'text/plain': ['graphql'] });
     app.use('/schema.graphql', express.static('schema.graphql'));
-
+    return;
     this.apolloServer.applyMiddleware({
       app,
       path: '/apollo',
