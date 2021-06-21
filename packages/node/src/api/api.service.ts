@@ -1,7 +1,7 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import {
@@ -16,14 +16,14 @@ import { AnyTuple, Registry } from '@polkadot/types/types';
 import { assign, pick } from 'lodash';
 import { combineLatest } from 'rxjs';
 import { SubqueryProject } from '../configure/project.model';
-import { IndexerEvent, NetworkMetadataPayload } from './events';
+import { IndexerEvent, NetworkMetadataPayload } from '../indexer/events';
 
 const NOT_SUPPORT = (name: string) => () => {
   throw new Error(`${name}() is not supported`);
 };
 
 @Injectable()
-export class ApiService implements OnApplicationShutdown {
+export class ApiService implements OnApplicationShutdown, OnModuleInit {
   private api: ApiPromise;
   private patchedApi: ApiPromise;
   private currentBlockHash: BlockHash;
@@ -37,6 +37,8 @@ export class ApiService implements OnApplicationShutdown {
   async onApplicationShutdown(): Promise<void> {
     await Promise.all([this.api?.disconnect(), this.patchedApi?.disconnect()]);
   }
+
+  async onModuleInit(): Promise<void> {}
 
   async init(): Promise<ApiService> {
     const { network } = this.project;

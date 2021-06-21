@@ -6,6 +6,10 @@ import { ConfigureModule } from './configure/configure.module';
 import { DbModule } from './db/db.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { RouterModule } from './router/router.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { IndexerModule } from './indexer/indexer.module';
+import { MetaModule } from './meta/meta.module';
+import { ApiModule } from './api/api.module';
 
 export class NodeOption {}
 
@@ -20,8 +24,10 @@ export class NodeOption {}
       ssl: !!process.env.DB_SSL,
     }),
     ConfigureModule.register(),
+    EventEmitterModule.forRoot(),
     GraphqlModule,
     RouterModule,
+    ApiModule,
   ],
   controllers: [],
 })

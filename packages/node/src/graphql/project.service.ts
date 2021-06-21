@@ -4,7 +4,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Pool } from 'pg';
 import { NodeConfig } from '../configure/NodeConfig';
-import { IndexerManager } from '../indexer/indexer.manager';
 
 @Injectable()
 export class ProjectService {

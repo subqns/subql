@@ -56,6 +56,8 @@ import PgMutationUpdateDeletePlugin from './PgMutationUpdateDeletePlugin';
 // import PgMutationCreatePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationCreatePlugin';
 // import PgMutationUpdateDeletePlugin from 'graphile-build-pg/node8plus/plugins/PgMutationUpdateDeletePlugin';
 import {
+  GraphQLObjectTypeLogNamePlugin,
+  NoopPlugin,
   MyRandomFieldPlugin,
   MyRandomPlugin,
   GlobalStringPlugin,
@@ -64,6 +66,7 @@ import {
   GlobalKvPlugin,
   NftViewIdNullablePlugin,
   NftViewPlugin,
+  AccountBalancePlugin,
 } from './randomField';
 
 /* eslint-enable */
@@ -112,6 +115,8 @@ export const pgDefaultPlugins = [
 ];
 
 export const nftmartPlugins = [
+  GraphQLObjectTypeLogNamePlugin,
+  NoopPlugin,
   PgMutationCreatePlugin,
   PgMutationPayloadEdgePlugin,
   PgMutationProceduresPlugin,
@@ -124,6 +129,7 @@ export const nftmartPlugins = [
   GlobalKvPlugin,
   NftViewIdNullablePlugin,
   NftViewPlugin,
+  AccountBalancePlugin,
 ];
 
 export const plugins = [

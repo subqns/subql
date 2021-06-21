@@ -3,6 +3,7 @@
 
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Pool } from 'pg';
+import { Sequelize } from 'sequelize';
 import { NodeConfig } from '../configure/NodeConfig';
 import { ProjectService } from './project.service';
 import { ApolloServer } from 'apollo-server-express';
@@ -16,6 +17,7 @@ import { applyMiddleware } from 'graphql-middleware';
 import { GraphQLSchema } from 'graphql';
 import { buildSchema, defaultPlugins } from 'graphile-build';
 import { printSchema } from 'graphql/utilities';
+import { ApiService } from '../api/api.service';
 
 const logInput = async (resolve, root, args, context, info) => {
   console.log(`1. logInput: ${JSON.stringify(args)}`);
@@ -36,10 +38,14 @@ export class ApolloService implements OnModuleInit {
   constructor(
     private readonly config: NodeConfig,
     private readonly pgPool: Pool,
+    private readonly sequelize: Sequelize,
     private readonly projectService: ProjectService,
+    private readonly apiService: ApiService,
   ) {}
 
-  async onModuleInit(): Promise<void> {}
+  async onModuleInit(): Promise<void> {
+    await this.apiService.init();
+  }
 
   async createHandler() {
     const isProd = false;
@@ -88,6 +94,8 @@ export class ApolloService implements OnModuleInit {
           req,
           res,
           projectSchema: dbSchema,
+          sequelize: this.sequelize,
+          api: this.apiService.getApi(),
         };
       },
     });
@@ -116,6 +124,8 @@ export class ApolloService implements OnModuleInit {
         return {
           projectSchema: dbSchema,
           pgClient: this.pgPool,
+          sequelize: this.sequelize,
+          api: this.apiService.getApi(),
         };
       },
       /* if the isJwt is enabled , context.pgRole and context.jwtClaims would be set, for example:
@@ -196,6 +206,8 @@ export class ApolloService implements OnModuleInit {
         return {
           projectSchema: dbSchema,
           pgClient: this.pgPool,
+          sequelize: this.sequelize,
+          api: this.apiService.getApi(),
         };
       },
       cacheControl: {

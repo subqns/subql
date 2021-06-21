@@ -16,7 +16,7 @@ import { SubqueryProject } from '../configure/project.model';
 import { SubqueryModel, SubqueryRepo } from '../entities';
 import { getLogger } from '../utils/logger';
 import * as SubstrateUtil from '../utils/substrate';
-import { ApiService } from './api.service';
+import { ApiService } from '../api/api.service';
 import { IndexerEvent } from './events';
 import { FetchService } from './fetch.service';
 import { StoreService } from './store.service';

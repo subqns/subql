@@ -4,9 +4,10 @@
 import { Module } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ApolloService } from './apollo.service';
+import { ApiModule } from '../api/api.module';
 
 @Module({
-  imports: [],
+  imports: [ApiModule],
   providers: [ProjectService, ApolloService],
   exports: [ApolloService],
 })

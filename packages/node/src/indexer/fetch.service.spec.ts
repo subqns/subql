@@ -5,7 +5,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { range } from 'lodash';
 import { NodeConfig } from '../configure/NodeConfig';
 import { fetchBlocks } from '../utils/substrate';
-import { ApiService } from './api.service';
+import { ApiService } from '../api/api.service';
 import { FetchService } from './fetch.service';
 
 jest.mock('../utils/substrate', () =>

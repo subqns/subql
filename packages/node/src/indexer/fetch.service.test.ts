@@ -4,7 +4,7 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NodeConfig } from '../configure/NodeConfig';
 import { SubqueryProject } from '../configure/project.model';
-import { ApiService } from './api.service';
+import { ApiService } from '../api/api.service';
 import { FetchService } from './fetch.service';
 
 function testSubqueryProject(): SubqueryProject {

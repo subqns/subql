@@ -42,19 +42,11 @@ const NftViewPlugin: Plugin = makeExtendSchemaPlugin(() => ({
     Mutation: {
       createNftViewFunc: async (_query, args, context, resolveInfo) => {
         let dbSchema = context.projectSchema;
-        console.log('Mutation createNftViewFunc', args);
         let pgPool = context.pgClient;
-        await pgPool.query(
-          `CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA ${dbSchema} CASCADE`,
-        );
-        await pgPool.query(
-          `ALTER TABLE ONLY ${dbSchema}.nft_views ALTER COLUMN id SET DEFAULT ${dbSchema}.gen_random_uuid()`,
-        );
-        let { rows } = await pgPool.query(
-          `INSERT INTO ${dbSchema}.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`,
-        );
+        await pgPool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA ${dbSchema} CASCADE`);
+        await pgPool.query(`ALTER TABLE ONLY ${dbSchema}.nft_views ALTER COLUMN id SET DEFAULT ${dbSchema}.gen_random_uuid()`);
+        let { rows } = await pgPool.query(`INSERT INTO ${dbSchema}.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`);
         let row = rows[0];
-        console.log(row);
         return {
           id: row.id,
           id2: row.id2,
@@ -268,7 +260,62 @@ function MyRandomFieldPlugin(
   builder.hook('GraphQLObjectType:fields', myRandomField);
 }
 
+// https://www.graphile.org/graphile-build/schema-builder/
+function GraphQLObjectTypeLogNamePlugin(builder) {
+  let mylogger = (fields, build, context) => {
+    if (fields.name == 'Account') {
+      console.log(
+        "A new GraphQLObjectType is being constructed with name: ",
+        // Object.keys(fields),
+        // build,
+        // context,
+        fields.name,
+        fields,
+      );
+      /*
+      let {extend, graphql: { GraphQLInt}} = build;
+      let {api} = context;
+      return extend(fields, {
+        balance: {
+          type: GraphQLInt,
+          async resolve(){
+            return 1;
+          },
+        },
+      });
+      */
+    }
+    return fields;
+  }
+  builder.hook("GraphQLObjectType:fields", mylogger);
+}
+
+const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
+  typeDefs: gql`
+    extend type Account {
+      balance: BigInt
+    }
+  `,
+  resolvers: {
+    Account: {
+      balance: async ({id}, args, context, resolveInfo) => {
+        let { api } = context;
+        let { data: { free: balance } } = await api.query.system.account(id);
+        let bn = balance.toBigInt();
+        // console.log(`${id}: ${bn}`);
+        return bn;
+      },
+    },
+  },
+}));
+
+function NoopPlugin(builder){
+  console.log('I do not do anything, except nothing');
+}
+
 export {
+  GraphQLObjectTypeLogNamePlugin,
+  NoopPlugin,
   MyRandomFieldPlugin,
   MyRandomPlugin,
   GlobalStringPlugin,
@@ -277,4 +324,5 @@ export {
   GlobalKvPlugin,
   NftViewIdNullablePlugin,
   NftViewPlugin,
+  AccountBalancePlugin,
 };
