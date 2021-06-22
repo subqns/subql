@@ -298,7 +298,8 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
   `,
   resolvers: {
     Account: {
-      balance: async ({id}, args, context, resolveInfo) => {
+      balance: async (parent, args, context, resolveInfo) => {
+        let id = parent.__identifiers[0];
         let { api } = context;
         let { data: { free: balance } } = await api.query.system.account(id);
         let bn = balance.toBigInt();
