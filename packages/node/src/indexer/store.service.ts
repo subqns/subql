@@ -44,6 +44,7 @@ export class StoreService {
     this.modelsRelations = modelsRelations;
     try {
       await this.syncdbSchema(this.dbSchema);
+      await this.syncoffchain(this.dbSchema);
     } catch (e) {
       logger.error(e, `Having a problem when syncing dbSchema`);
       process.exit(1);
@@ -56,25 +57,79 @@ export class StoreService {
     }
   }
 
+  async syncoffchain(dbSchema: string): Promise<void> {
+    const extraQueries = [
+
+      /* common setup */
+
+      `CREATE EXTENSION IF NOT EXISTS pgcrypto`, // provides gen_random_uuid()
+
+      `CREATE SCHEMA IF NOT EXISTS ${dbSchema}_offchain`,
+
+
+      `CREATE OR REPLACE FUNCTION ${dbSchema}_offchain.update_updated_at_column()
+      RETURNS TRIGGER AS $$
+      BEGIN
+          NEW.updated_at = now();
+          RETURN NEW;
+      END;
+      $$ language 'plpgsql'`,
+
+      /* ======= offchain_accounts ======== */
+
+      `CREATE TABLE IF NOT EXISTS ${dbSchema}_offchain.offchain_accounts (
+        "id" text NOT NULL PRIMARY KEY,
+        "balance" bigint,
+        "created_at" timestamp NOT NULL DEFAULT current_timestamp,
+        "updated_at" timestamp NOT NULL DEFAULT current_timestamp
+      );`,
+
+      /* CREATE OR REPLACE TRIGGER is not supported until pg14 */
+      `DROP TRIGGER IF EXISTS offchain_accounts_updated_at ON ${dbSchema}_offchain.offchain_accounts`,
+      `CREATE TRIGGER offchain_accounts_updated_at BEFORE UPDATE ON ${dbSchema}_offchain.offchain_accounts
+        FOR EACH ROW EXECUTE PROCEDURE ${dbSchema}_offchain.update_updated_at_column();`,
+
+
+      `INSERT INTO ${dbSchema}_offchain.offchain_accounts (id, balance) VALUES
+        ('65ADzWZUAKXQGZVhQ7ebqRdqEzMEftKytB8a7rknW82EASXB', 10000) ON CONFLICT DO NOTHING`,
+
+      /* left join tables from two schemas */
+      `CREATE OR REPLACE VIEW ${dbSchema}.accountBalances AS
+        SELECT ${dbSchema}.accounts.id, ${dbSchema}_offchain.offchain_accounts.balance 
+        FROM ${dbSchema}.accounts LEFT JOIN ${dbSchema}_offchain.offchain_accounts
+        ON ${dbSchema}.accounts.id = ${dbSchema}_offchain.offchain_accounts.id
+      `,
+
+      /* ======= offchain_nft_views =======  */
+
+      `CREATE TABLE IF NOT EXISTS ${dbSchema}_offchain.offchain_nft_views (
+          id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+          viewer_id text NOT NULL,
+          nft_id text NOT NULL,
+          "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+        )
+      `,
+
+      /* ======== offchain_account ======== */
+      /* ======== offchain_class_views ======== */
+    ];
+
+    /*
+    let allQuery = extraQueries.map(q=>q.trim().replace(/[;]+$/, "")).join(";\n");
+    await this.sequelize.query(allQuery);
+    console.log(allQuery);
+    return
+    */
+
+    for (const query of extraQueries) {
+      console.log(query);
+      await this.sequelize.query(query);
+    }
+  }
+
   async syncdbSchema(dbSchema: string): Promise<void> {
     for (const model of this.modelsRelations.models) {
       const attributes = modelsTypeToModelAttributes(model);
-      if (model.name === 'Block') {
-        console.log(model.name, 'model', JSON.stringify(model, null, '  '));
-        console.log(
-          model.name,
-          'attributes',
-          JSON.stringify(attributes, null, '  '),
-        );
-      }
-      if (model.name === 'NftView') {
-        console.log(model.name, 'model', JSON.stringify(model, null, '  '));
-        console.log(
-          model.name,
-          'attributes',
-          JSON.stringify(attributes, null, '  '),
-        );
-      }
       const indexes = model.indexes.map(({ fields, unique, using }) => ({
         fields: fields.map((field) => Utils.underscoredIf(field, true)),
         unique,
@@ -83,14 +138,26 @@ export class StoreService {
       if (indexes.length > this.config.indexCountLimit) {
         throw new Error(`too many indexes on entity ${model.name}`);
       }
+
       this.sequelize.define(model.name, attributes, {
         underscored: true,
         freezeTableName: false,
         schema: dbSchema,
         indexes,
-        timestamps: false,
+        timestamps: true,
       });
+
+      if (model.name == 'NftView' || model.name == 'Block') {
+        console.log(model.name, attributes, {
+          underscored: true,
+          freezeTableName: false,
+          schema: dbSchema,
+          indexes,
+          timestamps: true,
+        });
+      }
     }
+    console.log(this.sequelize.models);
     const extraQueries = [];
     for (const relation of this.modelsRelations.relations) {
       const model = this.sequelize.model(relation.from);
@@ -150,8 +217,11 @@ export class StoreService {
           throw new Error('Relation type is not supported');
       }
     }
-    await this.sequelize.sync();
+    await this.sequelize.sync({
+      // logging: console.log,
+    });
     for (const query of extraQueries) {
+      console.log(query);
       await this.sequelize.query(query);
     }
   }

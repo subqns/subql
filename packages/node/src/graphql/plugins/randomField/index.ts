@@ -43,8 +43,9 @@ const NftViewPlugin: Plugin = makeExtendSchemaPlugin(() => ({
       createNftViewFunc: async (_query, args, context, resolveInfo) => {
         let dbSchema = context.projectSchema;
         let pgPool = context.pgClient;
-        await pgPool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA ${dbSchema} CASCADE`);
-        await pgPool.query(`ALTER TABLE ONLY ${dbSchema}.nft_views ALTER COLUMN id SET DEFAULT ${dbSchema}.gen_random_uuid()`);
+        // see ../../../indexer/store.service.ts
+        // await pgPool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA ${dbSchema} CASCADE`);
+        // await pgPool.query(`ALTER TABLE ONLY ${dbSchema}.nft_views ALTER COLUMN id SET DEFAULT ${dbSchema}.gen_random_uuid()`);
         let { rows } = await pgPool.query(`INSERT INTO ${dbSchema}.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`);
         let row = rows[0];
         return {

@@ -69,7 +69,7 @@ export class ApolloService implements OnModuleInit {
     const dbSchema = await this.projectService.getProjectSchema(
       this.config.subqueryName,
     );
-    return postgraphile(this.pgPool, [dbSchema, 'public', ...jwtSchemas], {
+    return postgraphile(this.pgPool, [dbSchema, `${dbSchema}_offchain`, 'public', ...jwtSchemas], {
       ...jwtOptions,
       ...graphiqlOptions,
       simpleCollections: 'both',
