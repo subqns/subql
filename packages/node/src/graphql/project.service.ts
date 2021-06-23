@@ -17,13 +17,15 @@ export class ProjectService {
   async getProjectSchema(name: string): Promise<string> {
     const { rows } = await this.pool.query(
       `select *
-       from public.subqueries
+       from ${DEFAULT_DB_SCHEMA}.subqueries
        where name = $1`,
       [name],
     );
     if (rows.length === 0) {
-      throw new Error(`unknown project name ${this.config.subqueryName}`);
+      throw new Error(`unknown project name ${this.config.subqueryName}. Have you started the node service?`);
     }
     return rows[0].db_schema;
   }
 }
+
+const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';

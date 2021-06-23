@@ -58,16 +58,23 @@ export class StoreService {
   }
 
   async syncoffchain(dbSchema: string): Promise<void> {
+    let offchainSchema = process.env.DB_SCHEMA ?? 'public';
     const extraQueries = [
 
       /* common setup */
 
       `CREATE EXTENSION IF NOT EXISTS pgcrypto`, // provides gen_random_uuid()
 
-      `CREATE SCHEMA IF NOT EXISTS ${dbSchema}_offchain`,
+      // `CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA pg_catalog`, // provides gen_random_uuid()
+
+      // `CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA ${offchainSchema}`, // provides gen_random_uuid()
+
+      // `CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA ${offchainSchema}`, // provides gen_random_uuid()
+
+      `CREATE SCHEMA IF NOT EXISTS ${offchainSchema}`,
 
 
-      `CREATE OR REPLACE FUNCTION ${dbSchema}_offchain.update_updated_at_column()
+      `CREATE OR REPLACE FUNCTION ${offchainSchema}.update_updated_at_column()
       RETURNS TRIGGER AS $$
       BEGIN
           NEW.updated_at = now();
@@ -77,41 +84,62 @@ export class StoreService {
 
       /* ======= offchain_accounts ======== */
 
-      `CREATE TABLE IF NOT EXISTS ${dbSchema}_offchain.offchain_accounts (
+      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_accounts (
         "id" text NOT NULL PRIMARY KEY,
         "balance" bigint,
-        "created_at" timestamp NOT NULL DEFAULT current_timestamp,
-        "updated_at" timestamp NOT NULL DEFAULT current_timestamp
+        "created_at" timestamptz NOT NULL DEFAULT current_timestamp,
+        "updated_at" timestamptz NOT NULL DEFAULT current_timestamp
       );`,
 
       /* CREATE OR REPLACE TRIGGER is not supported until pg14 */
-      `DROP TRIGGER IF EXISTS offchain_accounts_updated_at ON ${dbSchema}_offchain.offchain_accounts`,
-      `CREATE TRIGGER offchain_accounts_updated_at BEFORE UPDATE ON ${dbSchema}_offchain.offchain_accounts
-        FOR EACH ROW EXECUTE PROCEDURE ${dbSchema}_offchain.update_updated_at_column();`,
+      `DROP TRIGGER IF EXISTS offchain_accounts_updated_at ON ${offchainSchema}.offchain_accounts`,
+      `CREATE TRIGGER offchain_accounts_updated_at BEFORE UPDATE ON ${offchainSchema}.offchain_accounts
+        FOR EACH ROW EXECUTE PROCEDURE ${offchainSchema}.update_updated_at_column();`,
 
 
-      `INSERT INTO ${dbSchema}_offchain.offchain_accounts (id, balance) VALUES
+      `INSERT INTO ${offchainSchema}.offchain_accounts (id, balance) VALUES
         ('65ADzWZUAKXQGZVhQ7ebqRdqEzMEftKytB8a7rknW82EASXB', 10000) ON CONFLICT DO NOTHING`,
 
       /* left join tables from two schemas */
       `CREATE OR REPLACE VIEW ${dbSchema}.accountBalances AS
-        SELECT ${dbSchema}.accounts.id, ${dbSchema}_offchain.offchain_accounts.balance 
-        FROM ${dbSchema}.accounts LEFT JOIN ${dbSchema}_offchain.offchain_accounts
-        ON ${dbSchema}.accounts.id = ${dbSchema}_offchain.offchain_accounts.id
+        SELECT ${dbSchema}.accounts.id, ${offchainSchema}.offchain_accounts.balance
+        FROM ${dbSchema}.accounts LEFT JOIN ${offchainSchema}.offchain_accounts
+        ON ${dbSchema}.accounts.id = ${offchainSchema}.offchain_accounts.id
       `,
 
       /* ======= offchain_nft_views =======  */
 
-      `CREATE TABLE IF NOT EXISTS ${dbSchema}_offchain.offchain_nft_views (
-          id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_nft_views (
+          id bigserial PRIMARY KEY,
           viewer_id text NOT NULL,
           nft_id text NOT NULL,
-          "timestamp" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+          count INTEGER DEFAULT 1 CHECK (count > 0),
+          "timestamp" timestamptz DEFAULT CURRENT_TIMESTAMP
         )
       `,
+      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_class_views (
+        id bigserial PRIMARY KEY,
+        viewer_id text NOT NULL,
+        class_id text NOT NULL,
+        count INTEGER DEFAULT 1 CHECK (count > 0),
+        "timestamp" timestamptz DEFAULT CURRENT_TIMESTAMP
+      )
+    `,
+      // select sum(count) as total from offchain.offchain_nft_views where nft_id = 'wtf';
+      `CREATE INDEX IF NOT EXISTS offchain_nft_views_viewer ON ${offchainSchema}.offchain_nft_views USING btree(viewer_id);`,
+      `CREATE INDEX IF NOT EXISTS offchain_nft_views_nft ON ${offchainSchema}.offchain_nft_views USING btree(nft_id);`,
+      // `ALTER TABLE ONLY ${offchainSchema}.offchain_nft_views ADD COLUMN IF NOT EXISTS count INTEGER DEFAULT 1 CHECK (count > 0)`,
 
       /* ======== offchain_account ======== */
       /* ======== offchain_class_views ======== */
+      /* ======== cat ======= */
+      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_cats (
+        id SERIAL NOT NULL PRIMARY KEY,
+        name TEXT NOT NULL,
+        age SMALLINT NOT NULL,
+        breed TEXT
+      )`,
+      `ALTER TABLE ONLY ${offchainSchema}.offchain_cats ALTER COLUMN breed SET DEFAULT 'unknown'`,
     ];
 
     /*

@@ -10,6 +10,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { IndexerModule } from './indexer/indexer.module';
 import { MetaModule } from './meta/meta.module';
 import { ApiModule } from './api/api.module';
+import { CatModule } from './cat/cat.module';
 
 export class NodeOption {}
 
@@ -21,6 +22,7 @@ export class NodeOption {}
       username: process.env.DB_USER ?? 'postgres',
       password: process.env.DB_PASS ?? 'postgres',
       database: process.env.DB_DATABASE ?? 'postgres',
+      schema: process.env.DB_SCHEMA ?? 'public',
       ssl: !!process.env.DB_SSL,
     }),
     ConfigureModule.register(),
@@ -28,6 +30,7 @@ export class NodeOption {}
     GraphqlModule,
     RouterModule,
     ApiModule,
+    CatModule,
   ],
   controllers: [],
 })

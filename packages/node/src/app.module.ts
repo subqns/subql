@@ -10,6 +10,7 @@ import { IndexerModule } from './indexer/indexer.module';
 import { MetaModule } from './meta/meta.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { RouterModule } from './router/router.module';
+import { CatModule } from './cat/cat.module';
 
 export class NodeOption {}
 
@@ -21,6 +22,7 @@ export class NodeOption {}
       username: process.env.DB_USER ?? 'postgres',
       password: process.env.DB_PASS ?? 'postgres',
       database: process.env.DB_DATABASE ?? 'postgres',
+      schema: process.env.DB_SCHEMA ?? 'public',
       ssl: !!process.env.DB_SSL,
     }),
     EventEmitterModule.forRoot(),
@@ -30,6 +32,7 @@ export class NodeOption {}
     MetaModule,
     GraphqlModule,
     RouterModule,
+    CatModule,
   ],
   controllers: [],
 })

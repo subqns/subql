@@ -7,12 +7,14 @@ import {Store} from './interfaces';
 
 var store: Store;
 var api: ApiPromise;
+var patchedApi: ApiPromise;
 var logger: Pino.Logger;
 
-function setGlobal(vars: {logger: Pino.Logger; api: ApiPromise; store: Store}) {
+function setGlobal(vars: {logger: Pino.Logger; api: ApiPromise; patchedApi: ApiPromise; store: Store}) {
   store = vars.store;
   api = vars.api;
+  patchedApi = vars.patchedApi;
   logger = vars.logger;
 }
 
-export {store, api, logger, setGlobal};
+export {store, api, patchedApi, logger, setGlobal};

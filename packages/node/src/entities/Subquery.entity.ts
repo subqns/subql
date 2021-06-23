@@ -68,6 +68,11 @@ export function SubqueryFactory(sequelize: Sequelize): SubqueryRepo {
         allowNull: true,
       },
     },
-    { underscored: true },
+    {
+      underscored: true,
+      schema: DEFAULT_DB_SCHEMA,
+    },
   );
 }
+
+const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';

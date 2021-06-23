@@ -3,6 +3,7 @@
 
 import { DynamicModule, Global } from '@nestjs/common';
 import { Sequelize } from 'sequelize';
+// import { SequelizeAuto } from 'sequelize-auto';
 import { Pool } from 'pg';
 import { Options as SequelizeOption } from 'sequelize/types';
 import * as entities from '../entities';
@@ -13,6 +14,7 @@ import { getYargsOption } from '../yargs';
 export interface DbOption {
   host: string;
   port: number;
+  schema: string;
   username: string;
   password: string;
   database: string;
@@ -38,16 +40,43 @@ async function establishConnection(
   }
 }
 
+/*
+const sequelizeAutoFactory = (option: SequelizeOption) => async () => {
+  const sequelize = await sequelizeFactory({dialect: 'postgres', ...option})();
+  const options = {
+    caseFile: 'l',
+    caseModel: 'p',
+    caseProp: 'c',
+  //schema: 'public',
+  };
+  const sequelizeAuto = new SequelizeAuto(sequelize, null, null, options);
+  return sequelizeAuto;
+}
+*/
+
+// var initialized: { [key: string]: boolean } = {};
+
+const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
+
 const sequelizeFactory = (option: SequelizeOption) => async () => {
   const sequelize = new Sequelize(option);
   const numRetries = 5;
   await establishConnection(sequelize, numRetries);
-  for (const factoryFn of Object.keys(entities).filter((k) =>
-    /Factory$/.exec(k),
-  )) {
+  let factoryFns = Object.keys(entities).filter((k) => /Factory$/.exec(k))
+  for (const factoryFn of factoryFns) {
+    /*
+    if (!initialized[factoryFn]) {
+      initialized[factoryFn] = true;
+    }
+    */
+    console.log(factoryFn);
     entities[factoryFn](sequelize);
   }
   const { migrate } = getYargsOption().argv;
+  const schemas = await sequelize.showAllSchemas(undefined);
+  if (!((schemas as unknown) as string[]).includes(DEFAULT_DB_SCHEMA)) {
+    await sequelize.createSchema(DEFAULT_DB_SCHEMA, undefined);
+  }
   await sequelize.sync({ alter: migrate });
   return sequelize;
 };
@@ -90,12 +119,20 @@ export class DbModule {
         },
         {
           provide: Pool,
-          useFactory: poolFactory({
-            ...option,
-          }),
+          useFactory: poolFactory(option),
         },
+        /*
+        {
+          provide: SequelizeAuto,
+          useFactory: sequelizeAutoFactory(option),
+        }
+        */
       ],
-      exports: [Sequelize, Pool],
+      exports: [
+        Sequelize,
+        Pool,
+      //SequelizeAuto,
+      ],
     };
   }
 

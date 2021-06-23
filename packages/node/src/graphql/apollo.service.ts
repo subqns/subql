@@ -19,6 +19,8 @@ import { buildSchema, defaultPlugins } from 'graphile-build';
 import { printSchema } from 'graphql/utilities';
 import { ApiService } from '../api/api.service';
 
+const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
+
 const logInput = async (resolve, root, args, context, info) => {
   console.log(`1. logInput: ${JSON.stringify(args)}`);
   const result = await resolve(root, args, context, info);
@@ -69,7 +71,7 @@ export class ApolloService implements OnModuleInit {
     const dbSchema = await this.projectService.getProjectSchema(
       this.config.subqueryName,
     );
-    return postgraphile(this.pgPool, [dbSchema, `${dbSchema}_offchain`, 'public', ...jwtSchemas], {
+    return postgraphile(this.pgPool, [dbSchema, DEFAULT_DB_SCHEMA, ...jwtSchemas], {
       ...jwtOptions,
       ...graphiqlOptions,
       simpleCollections: 'both',
@@ -93,6 +95,7 @@ export class ApolloService implements OnModuleInit {
         return {
           req,
           res,
+          offchainSchema: DEFAULT_DB_SCHEMA,
           projectSchema: dbSchema,
           sequelize: this.sequelize,
           api: this.apiService.getApi(),

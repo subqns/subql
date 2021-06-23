@@ -24,7 +24,7 @@ import { BlockContent } from './types';
 import { handleBlock, handleCall, handleEvent } from '@nftmart/subql';
 import { setGlobal } from '@subql/types';
 
-const DEFAULT_DB_SCHEMA = 'public';
+const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
 
 const logger = getLogger('index');
 
@@ -129,7 +129,8 @@ export class IndexerManager implements OnModuleInit {
     this.subqueryState = await this.ensureProject(this.nodeConfig.subqueryName);
     await this.initDbSchema();
     setGlobal({
-      api: await this.apiService.getPatchedApi(),
+      patchedApi: await this.apiService.getPatchedApi(),
+      api: this.api,
       store: this.storeService.getStore(),
       logger: getLogger('nftmart'),
     });
