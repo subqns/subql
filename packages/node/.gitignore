@@ -37,3 +37,4 @@ lerna-debug.log*
 schema.graphql
 schema.graphql.ts
 src/graphql/learn
+.data
