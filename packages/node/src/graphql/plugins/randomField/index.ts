@@ -175,6 +175,27 @@ async function hijackedHello(
   return `Hijacked: ${result}`;
 }
 
+async function emptyAccountFallback(
+  resolve,
+  source: RandomType,
+  args,
+  context,
+  resolveInfo,
+) {
+  const result = await resolve(source, args, context, resolveInfo);
+  console.log('result', result);
+  console.log('args', JSON.stringify(args));
+  console.log('source', source);
+
+  return result || { __identifiers: [args.id] }
+}
+
+const EmptyAccountFallbackPlugin: Plugin = makeWrapResolversPlugin({
+  Query: {
+    account: emptyAccountFallback,
+  }
+});
+
 const HijackRandomTypePlugin: Plugin = makeWrapResolversPlugin({
   RandomType: {
     hello: hijackedHello,
@@ -304,7 +325,7 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
         let { api } = context;
         let { data: { free: balance } } = await api.query.system.account(id);
         let bn = balance.toBigInt();
-        // console.log(`${id}: ${bn}`);
+        console.log(`${id}: ${bn}`);
         return bn;
       },
     },
@@ -327,4 +348,5 @@ export {
   NftViewIdNullablePlugin,
   NftViewPlugin,
   AccountBalancePlugin,
+  EmptyAccountFallbackPlugin,
 };

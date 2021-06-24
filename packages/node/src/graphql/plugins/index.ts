@@ -67,6 +67,7 @@ import {
   NftViewIdNullablePlugin,
   NftViewPlugin,
   AccountBalancePlugin,
+  EmptyAccountFallbackPlugin,
 } from './randomField';
 
 /* eslint-enable */
@@ -130,6 +131,7 @@ export const nftmartPlugins = [
   NftViewIdNullablePlugin,
   NftViewPlugin,
   AccountBalancePlugin,
+  EmptyAccountFallbackPlugin,
 ];
 
 export const plugins = [
