@@ -30,6 +30,7 @@
     "@nestjs/event-emitter": "^0.0.2",
     "@nestjs/platform-express": "^7.6.1",
     "@nestjs/schedule": "^0.4.2",
+    "@nestjs/typeorm": "^7.1.5",
     "@nftmart/subql": "workspace:*",
     "@polkadot/api": "latest",
     "@subql/common": "workspace:*",
@@ -56,6 +57,7 @@
     "sequelize-auto": "^0.8.3",
     "swagger-ui-express": "^4.1.6",
     "tar": "^6.1.0",
+    "typeorm": "^0.2.34",
     "typescript": "^4.1.3",
     "vm2": "^3.9.2",
     "yargs": "^16.2.0"

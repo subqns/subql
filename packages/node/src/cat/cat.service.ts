@@ -25,6 +25,7 @@ export class CatService implements OnModuleInit {
 
   async create(cat: CreateCatDto): Promise<Cat> {
     // this.cats.push(cat);
+    console.log(cat);
     const [result] : Cat[] = await this.sequelize.query(
         `INSERT INTO ${DEFAULT_DB_SCHEMA}.offchain_cats (name, age, breed) VALUES ('${cat.name}', ${cat.age}, '${cat.breed}') returning *`,
         {type: QueryTypes.SELECT},
@@ -39,7 +40,7 @@ export class CatService implements OnModuleInit {
     let fragment = keys.map((k)=>`${k} = ${quote(cat[k])}`).join(', ');
     console.log(fragment);
     const [result] : Cat[] = await this.sequelize.query(
-        `UPDATE ${DEFAULT_DB_SCHEMA}.offchain_cats SET ${fragment} where id = '${cat.id}' returning *`,
+        `UPDATE ${DEFAULT_DB_SCHEMA}.offchain_cats SET ${fragment} where id = ${cat.id} returning *`,
         {type: QueryTypes.SELECT},
     );
     return result;

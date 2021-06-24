@@ -5,12 +5,12 @@ export class CreateCatDto {
 }
 
 export class UpdateCatDto {
-    id: string;
+    id: number;
     name?: string;
     age?: number;
     breed?: string;
 }
 
 export class DeleteCatDto {
-    id: string;
+    id: number;
 }

@@ -5,11 +5,14 @@ import { DynamicModule, Global } from '@nestjs/common';
 import { Sequelize } from 'sequelize';
 // import { SequelizeAuto } from 'sequelize-auto';
 import { Pool } from 'pg';
+import { createConnection, Connection as TypeOrm } from 'typeorm';
 import { Options as SequelizeOption } from 'sequelize/types';
 import * as entities from '../entities';
 import { getLogger } from '../utils/logger';
 import { delay } from '../utils/promise';
 import { getYargsOption } from '../yargs';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { OrmCat } from '../cat/orm/cat.entity';
 
 export interface DbOption {
   host: string;
@@ -57,6 +60,7 @@ const sequelizeAutoFactory = (option: SequelizeOption) => async () => {
 // var initialized: { [key: string]: boolean } = {};
 
 const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
+const { migrate } = getYargsOption().argv;
 
 const sequelizeFactory = (option: SequelizeOption) => async () => {
   const sequelize = new Sequelize(option);
@@ -72,7 +76,6 @@ const sequelizeFactory = (option: SequelizeOption) => async () => {
     console.log(factoryFn);
     entities[factoryFn](sequelize);
   }
-  const { migrate } = getYargsOption().argv;
   const schemas = await sequelize.showAllSchemas(undefined);
   if (!((schemas as unknown) as string[]).includes(DEFAULT_DB_SCHEMA)) {
     await sequelize.createSchema(DEFAULT_DB_SCHEMA, undefined);
@@ -97,6 +100,23 @@ const poolFactory = (option: DbOption) => async () => {
   return pgPool;
 };
 
+const typeormFactory = (option: DbOption) => async () => {
+  const typeorm: TypeOrm = await createConnection({
+    ...option,
+    type: 'postgres',
+    // autoLoadEntities: true,
+    entities: [
+      OrmCat,
+    ],
+    synchronize: migrate,
+    extra: {
+      poolSize: 10,
+    },
+    logging: false,
+  });
+  return typeorm;
+};
+
 @Global()
 export class DbModule {
   static forRoot(option: DbOption): DynamicModule {
@@ -104,6 +124,16 @@ export class DbModule {
     const logger = getLogger('db');
     return {
       module: DbModule,
+      /*
+      imports: [
+        TypeOrmModule.forRoot({
+          ...option,
+          type: 'postgres',
+          autoLoadEntities: true,
+          synchronize: migrate,
+        }),
+      ],
+      */
       providers: [
         {
           provide: Sequelize,
@@ -121,6 +151,10 @@ export class DbModule {
           provide: Pool,
           useFactory: poolFactory(option),
         },
+        {
+          provide: TypeOrm,
+          useFactory: typeormFactory(option),
+        },
         /*
         {
           provide: SequelizeAuto,
@@ -132,6 +166,7 @@ export class DbModule {
         Sequelize,
         Pool,
       //SequelizeAuto,
+        TypeOrm,
       ],
     };
   }

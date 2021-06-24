@@ -11,6 +11,8 @@ import { MetaModule } from './meta/meta.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { RouterModule } from './router/router.module';
 import { CatModule } from './cat/cat.module';
+import { OrmCatModule } from './cat/orm/cat.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 export class NodeOption {}
 
@@ -25,6 +27,17 @@ export class NodeOption {}
       schema: process.env.DB_SCHEMA ?? 'public',
       ssl: !!process.env.DB_SSL,
     }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST ?? '127.0.0.1',
+      port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+      username: process.env.DB_USER ?? 'postgres',
+      password: process.env.DB_PASS ?? 'postgres',
+      database: process.env.DB_DATABASE ?? 'postgres',
+      schema: process.env.DB_SCHEMA ?? 'public',
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
     EventEmitterModule.forRoot(),
     ConfigureModule.register(),
     ScheduleModule.forRoot(),
@@ -33,6 +46,7 @@ export class NodeOption {}
     GraphqlModule,
     RouterModule,
     CatModule,
+    OrmCatModule,
   ],
   controllers: [],
 })
