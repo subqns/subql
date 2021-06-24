@@ -128,8 +128,8 @@ export const nftmartPlugins = [
   HeadersPlugin,
   HijackRandomTypePlugin,
   GlobalKvPlugin,
-  NftViewIdNullablePlugin,
-  NftViewPlugin,
+  // NftViewIdNullablePlugin,
+  // NftViewPlugin,
   AccountBalancePlugin,
   EmptyAccountFallbackPlugin,
 ];
