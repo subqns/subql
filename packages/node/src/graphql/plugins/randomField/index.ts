@@ -187,7 +187,7 @@ async function emptyAccountFallback(
   console.log('args', JSON.stringify(args));
   console.log('source', source);
 
-  return result || { __identifiers: [args.id] }
+  return result || { __identifiers: [args.id], id: args.id }
 }
 
 const EmptyAccountFallbackPlugin: Plugin = makeWrapResolversPlugin({
