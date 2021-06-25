@@ -2,7 +2,11 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 // import { CreateCatDto, UpdateCatDto, DeleteCatDto } from '../cat.dto';
 import { Banner } from './banner.entity';
 import { BannerService } from './banner.service';
+import {
+  ApiBearerAuth, ApiTags
+} from '@nestjs/swagger';
 
+@ApiTags('nftmart')
 @Controller('/api/banner')
 export class BannerController {
   constructor(private readonly bannerService: BannerService) {}

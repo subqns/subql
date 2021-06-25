@@ -7,6 +7,7 @@ import { AppNodeModule } from './app.node.module';
 import { AppQueryModule } from './app.query.module';
 import { IndexerManager } from './indexer/indexer.manager';
 import { getLogger, NestLogger } from './utils/logger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const APP = process.env.APP || "all";
@@ -27,9 +28,21 @@ async function bootstrapQuery() {
 }
 
 async function bootstrapAll() {
-  const app = await NestFactory.create(AppModule);
+  const appOptions = {cors: true}
+  const app = await NestFactory.create(AppModule, appOptions);
   // await app.get('InitSchema')();
   await app.get(IndexerManager).init();
+
+  const docOpts = new DocumentBuilder()
+    .setTitle('Nftmart Cache Service')
+    .setDescription('Query onchain and offchain data with ease')
+    .setVersion('1.0')
+    .setBasePath('api')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, docOpts);
+  SwaggerModule.setup('/docs', app, document);
+
   await app.init();
   await app.listen(PORT);
   getLogger('subql').info(`subql started on ${PORT}`);

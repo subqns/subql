@@ -3,6 +3,11 @@ import { CreateCatDto, UpdateCatDto, DeleteCatDto } from '../cat.dto';
 import { OrmCat } from './cat.entity';
 import { OrmCatService } from './cat.service';
 
+import {
+    ApiBearerAuth, ApiTags
+} from '@nestjs/swagger';
+  
+@ApiTags('cat')
 @Controller('/api/ormcat')
 export class OrmCatController {
   constructor(private readonly ormCatService: OrmCatService) {}

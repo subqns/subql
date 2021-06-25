@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-
+import { ApiProperty } from '@nestjs/swagger';
 @Entity()
 export class OrmCat {
   @PrimaryGeneratedColumn()
