@@ -4,7 +4,7 @@
 import { DynamicModule, Global } from '@nestjs/common';
 import { Sequelize } from 'sequelize';
 // import { SequelizeAuto } from 'sequelize-auto';
-import { Pool } from 'pg';
+import { Pool, Client } from 'pg';
 import { createConnection, Connection as TypeOrm } from 'typeorm';
 import { Options as SequelizeOption } from 'sequelize/types';
 import * as entities from '../entities';
@@ -12,7 +12,7 @@ import { getLogger } from '../utils/logger';
 import { delay } from '../utils/promise';
 import { getYargsOption } from '../yargs';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { OrmCat } from '../cat/orm/cat.entity';
+// import { OrmCat } from '../cat/orm/cat.entity';
 
 export interface DbOption {
   host: string;
@@ -62,10 +62,36 @@ const sequelizeAutoFactory = (option: SequelizeOption) => async () => {
 const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
 const { migrate } = getYargsOption().argv;
 
+// sequelizeFactory ensures the default schema exists before returning a Sequelize instance
+// no need to implement separately
+// TypeOrmModule requires the default schema being created before Module loading
+// so we need to manually ensure schema being created before loading TypeOrmModule
+const initSchema = (option: DbOption) => async () => {
+  console.log(`ensure default schema ${DEFAULT_DB_SCHEMA} exists`);
+  // await sequelizeFactory({...option, dialect: 'postgres', logging: false})();
+  const client = new Client({
+    user: option.username,
+    password: option.password,
+    host: option.host,
+    port: option.port,
+    database: option.database,
+    ssl: option.ssl,
+  });
+  await client.connect();
+  await client.query(`CREATE SCHEMA IF NOT EXISTS ${DEFAULT_DB_SCHEMA}`);
+  await client.end();
+}
+
 const sequelizeFactory = (option: SequelizeOption) => async () => {
   const sequelize = new Sequelize(option);
   const numRetries = 5;
   await establishConnection(sequelize, numRetries);
+
+  const schemas = await sequelize.showAllSchemas(undefined);
+  if (!((schemas as unknown) as string[]).includes(DEFAULT_DB_SCHEMA)) {
+    await sequelize.createSchema(DEFAULT_DB_SCHEMA, undefined);
+  }
+
   let factoryFns = Object.keys(entities).filter((k) => /Factory$/.exec(k))
   for (const factoryFn of factoryFns) {
     /*
@@ -75,10 +101,6 @@ const sequelizeFactory = (option: SequelizeOption) => async () => {
     */
     console.log(factoryFn);
     entities[factoryFn](sequelize);
-  }
-  const schemas = await sequelize.showAllSchemas(undefined);
-  if (!((schemas as unknown) as string[]).includes(DEFAULT_DB_SCHEMA)) {
-    await sequelize.createSchema(DEFAULT_DB_SCHEMA, undefined);
   }
   await sequelize.sync({ alter: migrate });
   return sequelize;
@@ -100,6 +122,7 @@ const poolFactory = (option: DbOption) => async () => {
   return pgPool;
 };
 
+/*
 const typeormFactory = (option: DbOption) => async () => {
   const typeorm: TypeOrm = await createConnection({
     ...option,
@@ -116,12 +139,14 @@ const typeormFactory = (option: DbOption) => async () => {
   });
   return typeorm;
 };
+*/
 
 @Global()
 export class DbModule {
   static forRoot(option: DbOption): DynamicModule {
     const { argv } = getYargsOption();
     const logger = getLogger('db');
+    // await ensureDefaultSchema(option);
     return {
       module: DbModule,
       /*
@@ -135,6 +160,10 @@ export class DbModule {
       ],
       */
       providers: [
+        {
+          provide: 'InitSchema',
+          useValue: initSchema(option),
+        },
         {
           provide: Sequelize,
           useFactory: sequelizeFactory({
