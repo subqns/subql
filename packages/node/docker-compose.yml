@@ -27,3 +27,12 @@ services:
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+
+  adminer:
+    image: adminer
+    environment:
+      ADMINER_DEFAULT_DB_DRIVER: pgsql
+      ADMINER_DEFAULT_DB_HOST: postgres
+      ADMINER_DEFAULT_DB_NAME: postgres
+    ports:
+      - 8090:8080
