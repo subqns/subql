@@ -151,11 +151,11 @@ export class DbModule {
           provide: Pool,
           useFactory: poolFactory(option),
         },
+        /*
         {
           provide: TypeOrm,
           useFactory: typeormFactory(option),
         },
-        /*
         {
           provide: SequelizeAuto,
           useFactory: sequelizeAutoFactory(option),
@@ -166,7 +166,7 @@ export class DbModule {
         Sequelize,
         Pool,
       //SequelizeAuto,
-        TypeOrm,
+      //TypeOrm,
       ],
     };
   }

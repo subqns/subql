@@ -6,7 +6,7 @@ import { OrmCatService } from './cat.service';
 import { DbModule } from '../../db/db.module';
 
 @Module({
-  imports: [DbModule], // [TypeOrmModule.forFeature([OrmCat])],
+  imports: [TypeOrmModule.forFeature([OrmCat])],
   providers: [OrmCatService],
   controllers: [OrmCatController],
 })

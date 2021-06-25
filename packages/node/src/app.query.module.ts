@@ -35,6 +35,7 @@ export class NodeOption {}
       password: process.env.DB_PASS ?? 'postgres',
       database: process.env.DB_DATABASE ?? 'postgres',
       schema: process.env.DB_SCHEMA ?? 'public',
+      entityPrefix: "offchain_",
       autoLoadEntities: true,
       synchronize: true,
     }),

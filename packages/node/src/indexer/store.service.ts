@@ -107,8 +107,7 @@ export class StoreService {
         ON ${dbSchema}.accounts.id = ${offchainSchema}.offchain_accounts.id
       `,
 
-      /* ======= offchain_nft_views =======  */
-
+      /* ------ offchain_nft_views ------ moved to offchain entities
       `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_nft_views (
           id bigserial PRIMARY KEY,
           viewer_id text NOT NULL,
@@ -124,13 +123,22 @@ export class StoreService {
         count INTEGER DEFAULT 1 CHECK (count > 0),
         "timestamp" timestamptz DEFAULT CURRENT_TIMESTAMP
       )
-    `,
+      `,*/
       // select sum(count) as total from offchain.offchain_nft_views where nft_id = 'wtf';
-      `CREATE INDEX IF NOT EXISTS offchain_nft_views_viewer ON ${offchainSchema}.offchain_nft_views USING btree(viewer_id);`,
-      `CREATE INDEX IF NOT EXISTS offchain_nft_views_nft ON ${offchainSchema}.offchain_nft_views USING btree(nft_id);`,
+      // `CREATE INDEX IF NOT EXISTS offchain_nft_views_viewer ON ${offchainSchema}.offchain_nft_views USING btree(viewer_id);`,
+      // `CREATE INDEX IF NOT EXISTS offchain_nft_views_nft ON ${offchainSchema}.offchain_nft_views USING btree(nft_id);`,
       // `ALTER TABLE ONLY ${offchainSchema}.offchain_nft_views ADD COLUMN IF NOT EXISTS count INTEGER DEFAULT 1 CHECK (count > 0)`,
 
       /* ======== offchain_account ======== */
+      /* -------- offchain_banner -------- moved to offchain entities */
+      /*
+      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_banners (
+        id SERIAL NOT NULL PRIMARY KEY,
+        name TEXT UNIQUE NOT NULL DEFAULT 'default',
+        url TEXT NOT NULL
+      )`,
+      `INSERT INTO ${offchainSchema}.offchain_banners (url) VALUES ('https://dummyimage.com/1200x800') ON CONFLICT DO NOTHING`,
+      */
       /* ======== offchain_class_views ======== */
       /* ======== cat ======= */
       `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_cats (

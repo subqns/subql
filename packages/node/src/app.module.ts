@@ -13,6 +13,7 @@ import { RouterModule } from './router/router.module';
 import { CatModule } from './cat/cat.module';
 import { OrmCatModule } from './cat/orm/cat.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BannerModule } from './offchain/banner.module';
 
 export class NodeOption {}
 
@@ -35,6 +36,7 @@ export class NodeOption {}
       password: process.env.DB_PASS ?? 'postgres',
       database: process.env.DB_DATABASE ?? 'postgres',
       schema: process.env.DB_SCHEMA ?? 'public',
+      entityPrefix: "offchain_",
       autoLoadEntities: true,
       synchronize: true,
     }),
@@ -47,6 +49,7 @@ export class NodeOption {}
     RouterModule,
     CatModule,
     OrmCatModule,
+    BannerModule,
   ],
   controllers: [],
 })
