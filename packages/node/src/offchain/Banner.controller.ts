@@ -1,10 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-// import { CreateCatDto, UpdateCatDto, DeleteCatDto } from '../cat.dto';
-import { Banner } from './banner.entity';
-import { BannerService } from './banner.service';
 import {
-  ApiBearerAuth, ApiTags
-} from '@nestjs/swagger';
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { Banner } from './Banner.entity';
+import { BannerService } from './Banner.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('nftmart')
 @Controller('/api/banner')

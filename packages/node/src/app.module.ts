@@ -10,11 +10,13 @@ import { IndexerModule } from './indexer/indexer.module';
 import { MetaModule } from './meta/meta.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { RouterModule } from './router/router.module';
-import { CatModule } from './cat/cat.module';
-import { OrmCatModule } from './cat/orm/cat.module';
+// import { CatModule } from './cat/cat.module';
+// import { OrmCatModule } from './cat/orm/cat.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BannerModule } from './offchain/banner.module';
+import { BannerModule } from './offchain/Banner.module';
 import { NftViewModule } from './offchain/NftView.module';
+import { AccountModule } from './offchain/Account.module';
+import { CatModule } from './offchain/Cat.module';
 
 export class NodeOption {}
 
@@ -48,10 +50,12 @@ export class NodeOption {}
     MetaModule,
     GraphqlModule,
     RouterModule,
-    CatModule,
-    OrmCatModule,
+    // CatModule,
+    // OrmCatModule,
     BannerModule,
     NftViewModule,
+    AccountModule,
+    CatModule,
   ],
   controllers: [],
 })

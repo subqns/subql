@@ -71,6 +71,7 @@ export function SubqueryFactory(sequelize: Sequelize): SubqueryRepo {
     {
       underscored: true,
       schema: DEFAULT_DB_SCHEMA,
+      freezeTableName: false,
     },
   );
 }

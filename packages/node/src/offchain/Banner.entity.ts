@@ -8,7 +8,7 @@ export class Banner {
   @Column({
     unique: true,
     nullable: false,
-    default: "default"
+    default: 'default',
   })
   name: string;
 

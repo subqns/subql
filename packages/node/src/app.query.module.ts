@@ -10,9 +10,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { IndexerModule } from './indexer/indexer.module';
 import { MetaModule } from './meta/meta.module';
 import { ApiModule } from './api/api.module';
-import { CatModule } from './cat/cat.module';
-import { OrmCatModule } from './cat/orm/cat.module';
+// import { CatModule } from './cat/cat.module';
+// import { OrmCatModule } from './cat/orm/cat.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CatModule } from './offchain/Cat.module';
 
 export class NodeOption {}
 
@@ -35,7 +36,7 @@ export class NodeOption {}
       password: process.env.DB_PASS ?? 'postgres',
       database: process.env.DB_DATABASE ?? 'postgres',
       schema: process.env.DB_SCHEMA ?? 'public',
-      entityPrefix: "offchain_",
+      entityPrefix: 'offchain_',
       autoLoadEntities: true,
       synchronize: true,
     }),
@@ -44,8 +45,9 @@ export class NodeOption {}
     GraphqlModule,
     RouterModule,
     ApiModule,
+    // CatModule,
+    // OrmCatModule,
     CatModule,
-    OrmCatModule,
   ],
   controllers: [],
 })

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 // import { CreateCatDto, UpdateCatDto, DeleteCatDto } from '../cat.dto';
-import { Banner } from './banner.entity';
+import { Banner } from './Banner.entity';
 
 @Injectable()
 export class BannerService {
@@ -11,26 +11,26 @@ export class BannerService {
     private readonly bannerRepository: Repository<Banner>,
   ) {}
 
-  async onModuleInit(): Promise<void>{
+  async onModuleInit(): Promise<void> {
     // insert placeholder
     let placeholder = new Banner();
-    placeholder.url = "https://dummyimage.com/1200x800";
+    placeholder.url = 'https://dummyimage.com/1200x800';
     console.log(`inserting placeholder banner ${placeholder}`);
-    await this.bannerRepository.manager.connection.createQueryBuilder()
-              .insert()
-              .into(Banner)
-              .values(placeholder)
-              .orIgnore()
-              .execute();
+    await this.bannerRepository.manager.connection
+      .createQueryBuilder()
+      .insert()
+      .into(Banner)
+      .values(placeholder)
+      .orIgnore()
+      .execute();
   }
-
 
   async findAll(): Promise<Banner[]> {
     return await this.bannerRepository.find();
   }
 
   async findOne(name: string): Promise<Banner> {
-    return await this.bannerRepository.findOne({name});
+    return await this.bannerRepository.findOne({ name });
   }
 
   // private readonly cats: Cat[] = [];
