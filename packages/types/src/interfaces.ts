@@ -1,7 +1,7 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import {Extrinsic, EventRecord, SignedBlock} from '@polkadot/types/interfaces';
+import {Extrinsic, EventRecord, SignedBlock} from '@polkadot/types/interfaces/types';
 
 export interface Entity {
   id?: string;

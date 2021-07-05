@@ -29,9 +29,10 @@
     "vuepress": "next"
   },
   "resolutions": {
-    "@polkadot/api": "^4.15.1",
-    "@polkadot/util": "^6.9.1",
-    "@polkadot/util-crypto": "^6.9.1",
+    "@polkadot/api": "4.16.2",
+    "@polkadot/types": "4.16.2",
+    "@polkadot/util": "6.10.1",
+    "@polkadot/util-crypto": "6.10.1",
     "typescript": "latest"
   },
   "scripts": {
