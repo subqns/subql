@@ -60,7 +60,6 @@ export class StoreService {
   async syncoffchain(dbSchema: string): Promise<void> {
     let offchainSchema = process.env.DB_SCHEMA ?? 'public';
     const extraQueries = [
-
       /* common setup */
 
       `CREATE EXTENSION IF NOT EXISTS pgcrypto`, // provides gen_random_uuid()
@@ -72,7 +71,6 @@ export class StoreService {
       // `CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA ${offchainSchema}`, // provides gen_random_uuid()
 
       `CREATE SCHEMA IF NOT EXISTS ${offchainSchema}`,
-
 
       `CREATE OR REPLACE FUNCTION ${offchainSchema}.update_updated_at_column()
       RETURNS TRIGGER AS $$
@@ -95,7 +93,6 @@ export class StoreService {
       `DROP TRIGGER IF EXISTS offchain_accounts_updated_at ON ${offchainSchema}.offchain_accounts`,
       `CREATE TRIGGER offchain_accounts_updated_at BEFORE UPDATE ON ${offchainSchema}.offchain_accounts
         FOR EACH ROW EXECUTE PROCEDURE ${offchainSchema}.update_updated_at_column();`,
-
 
       `INSERT INTO ${offchainSchema}.offchain_accounts (id, balance) VALUES
         ('65ADzWZUAKXQGZVhQ7ebqRdqEzMEftKytB8a7rknW82EASXB', 10000) ON CONFLICT DO NOTHING`,
@@ -180,20 +177,19 @@ export class StoreService {
         freezeTableName: false,
         schema: dbSchema,
         indexes,
-        timestamps: true,
+        timestamps: false,
       });
-
+      continue;
       if (model.name == 'NftView' || model.name == 'Block') {
         console.log(model.name, attributes, {
           underscored: true,
           freezeTableName: false,
           schema: dbSchema,
           indexes,
-          timestamps: true,
         });
       }
     }
-    console.log(this.sequelize.models);
+    // console.log(this.sequelize.models);
     const extraQueries = [];
     for (const relation of this.modelsRelations.relations) {
       const model = this.sequelize.model(relation.from);

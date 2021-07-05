@@ -1,10 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn, Check, CreateDateColumn, Index } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Check,
+  CreateDateColumn,
+  Index,
+} from 'typeorm';
 
 @Entity()
 @Check(`"count" > 0`)
 export class NftView {
   @PrimaryGeneratedColumn({
-    type: "bigint",
+    type: 'bigint',
   })
   id: number;
 
@@ -27,8 +34,8 @@ export class NftView {
   count: number;
 
   @CreateDateColumn({
-    type: "timestamptz",
-    default: "",
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
   })
   timestamp: Date;
 }

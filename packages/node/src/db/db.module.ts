@@ -17,11 +17,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 export interface DbOption {
   host: string;
   port: number;
-  schema: string;
   username: string;
   password: string;
   database: string;
-  ssl: boolean;
+  schema?: string;
+  ssl?: boolean;
 }
 
 const logger = getLogger('db');
@@ -80,7 +80,7 @@ const initSchema = (option: DbOption) => async () => {
   await client.connect();
   await client.query(`CREATE SCHEMA IF NOT EXISTS ${DEFAULT_DB_SCHEMA}`);
   await client.end();
-}
+};
 
 const sequelizeFactory = (option: SequelizeOption) => async () => {
   const sequelize = new Sequelize(option);
@@ -88,11 +88,11 @@ const sequelizeFactory = (option: SequelizeOption) => async () => {
   await establishConnection(sequelize, numRetries);
 
   const schemas = await sequelize.showAllSchemas(undefined);
-  if (!((schemas as unknown) as string[]).includes(DEFAULT_DB_SCHEMA)) {
+  if (!(schemas as unknown as string[]).includes(DEFAULT_DB_SCHEMA)) {
     await sequelize.createSchema(DEFAULT_DB_SCHEMA, undefined);
   }
 
-  let factoryFns = Object.keys(entities).filter((k) => /Factory$/.exec(k))
+  let factoryFns = Object.keys(entities).filter((k) => /Factory$/.exec(k));
   for (const factoryFn of factoryFns) {
     /*
     if (!initialized[factoryFn]) {
@@ -194,8 +194,8 @@ export class DbModule {
       exports: [
         Sequelize,
         Pool,
-      //SequelizeAuto,
-      //TypeOrm,
+        //SequelizeAuto,
+        //TypeOrm,
       ],
     };
   }
