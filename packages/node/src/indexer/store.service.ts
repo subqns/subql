@@ -57,102 +57,22 @@ export class StoreService {
     }
   }
 
+  // this part runs after typeorm tables are created / modified
+  // it's suitable for defining functions / views that need to access both schemas
   async syncoffchain(dbSchema: string): Promise<void> {
     let offchainSchema = process.env.DB_SCHEMA ?? 'public';
     const extraQueries = [
-      /* common setup */
+      // populate data, note that updated_at isn't updated unless row is changed via typeorm
+      // can also be done in Account.service's onModuleInit stage
+      `INSERT INTO ${offchainSchema}.offchain_account (id, name) VALUES
+        ('65ADzWZUAKXQGZVhQ7ebqRdqEzMEftKytB8a7rknW82EASXB', 'alice') ON CONFLICT DO NOTHING`,
+      `UPDATE ${offchainSchema}.offchain_account SET alias = 'alice_alias' WHERE id = '65ADzWZUAKXQGZVhQ7ebqRdqEzMEftKytB8a7rknW82EASXB'`,
 
-      `CREATE EXTENSION IF NOT EXISTS pgcrypto`, // provides gen_random_uuid()
-
-      // `CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA pg_catalog`, // provides gen_random_uuid()
-
-      // `CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA ${offchainSchema}`, // provides gen_random_uuid()
-
-      // `CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA ${offchainSchema}`, // provides gen_random_uuid()
-
-      `CREATE SCHEMA IF NOT EXISTS ${offchainSchema}`,
-
-      `CREATE OR REPLACE FUNCTION ${offchainSchema}.update_updated_at_column()
-      RETURNS TRIGGER AS $$
-      BEGIN
-          NEW.updated_at = now();
-          RETURN NEW;
-      END;
-      $$ language 'plpgsql'`,
-
-      /* ======= offchain_accounts ======== */
-
-      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_accounts (
-        "id" text NOT NULL PRIMARY KEY,
-        "balance" bigint,
-        "created_at" timestamptz NOT NULL DEFAULT current_timestamp,
-        "updated_at" timestamptz NOT NULL DEFAULT current_timestamp
-      );`,
-
-      /* CREATE OR REPLACE TRIGGER is not supported until pg14 */
-      `DROP TRIGGER IF EXISTS offchain_accounts_updated_at ON ${offchainSchema}.offchain_accounts`,
-      `CREATE TRIGGER offchain_accounts_updated_at BEFORE UPDATE ON ${offchainSchema}.offchain_accounts
-        FOR EACH ROW EXECUTE PROCEDURE ${offchainSchema}.update_updated_at_column();`,
-
-      `INSERT INTO ${offchainSchema}.offchain_accounts (id, balance) VALUES
-        ('65ADzWZUAKXQGZVhQ7ebqRdqEzMEftKytB8a7rknW82EASXB', 10000) ON CONFLICT DO NOTHING`,
-
-      /* left join tables from two schemas */
-      `CREATE OR REPLACE VIEW ${dbSchema}.accountBalances AS
-        SELECT ${dbSchema}.accounts.id, ${offchainSchema}.offchain_accounts.balance
-        FROM ${dbSchema}.accounts LEFT JOIN ${offchainSchema}.offchain_accounts
-        ON ${dbSchema}.accounts.id = ${offchainSchema}.offchain_accounts.id
-      `,
-
-      /* ------ offchain_nft_views ------ moved to offchain entities
-      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_nft_views (
-          id bigserial PRIMARY KEY,
-          viewer_id text NOT NULL,
-          nft_id text NOT NULL,
-          count INTEGER DEFAULT 1 CHECK (count > 0),
-          "timestamp" timestamptz DEFAULT CURRENT_TIMESTAMP
-        )
-      `,
-      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_class_views (
-        id bigserial PRIMARY KEY,
-        viewer_id text NOT NULL,
-        class_id text NOT NULL,
-        count INTEGER DEFAULT 1 CHECK (count > 0),
-        "timestamp" timestamptz DEFAULT CURRENT_TIMESTAMP
-      )
-      `,*/
-      // select sum(count) as total from offchain.offchain_nft_views where nft_id = 'wtf';
-      // `CREATE INDEX IF NOT EXISTS offchain_nft_views_viewer ON ${offchainSchema}.offchain_nft_views USING btree(viewer_id);`,
-      // `CREATE INDEX IF NOT EXISTS offchain_nft_views_nft ON ${offchainSchema}.offchain_nft_views USING btree(nft_id);`,
-      // `ALTER TABLE ONLY ${offchainSchema}.offchain_nft_views ADD COLUMN IF NOT EXISTS count INTEGER DEFAULT 1 CHECK (count > 0)`,
-
-      /* ======== offchain_account ======== */
-      /* -------- offchain_banner -------- moved to offchain entities */
-      /*
-      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_banners (
-        id SERIAL NOT NULL PRIMARY KEY,
-        name TEXT UNIQUE NOT NULL DEFAULT 'default',
-        url TEXT NOT NULL
-      )`,
-      `INSERT INTO ${offchainSchema}.offchain_banners (url) VALUES ('https://dummyimage.com/1200x800') ON CONFLICT DO NOTHING`,
-      */
-      /* ======== offchain_class_views ======== */
-      /* ======== cat ======= */
-      `CREATE TABLE IF NOT EXISTS ${offchainSchema}.offchain_cats (
-        id SERIAL NOT NULL PRIMARY KEY,
-        name TEXT NOT NULL,
-        age SMALLINT NOT NULL,
-        breed TEXT
-      )`,
-      `ALTER TABLE ONLY ${offchainSchema}.offchain_cats ALTER COLUMN breed SET DEFAULT 'unknown'`,
+      // create computed column accounts.name, see https://www.graphile.org/postgraphile/computed-columns/
+      `CREATE OR REPLACE FUNCTION ${dbSchema}.accounts_name(acc ${dbSchema}.accounts) RETURNS text AS $$
+        SELECT name FROM ${offchainSchema}.offchain_account WHERE id = acc.id
+        $$ LANGUAGE sql STABLE;`,
     ];
-
-    /*
-    let allQuery = extraQueries.map(q=>q.trim().replace(/[;]+$/, "")).join(";\n");
-    await this.sequelize.query(allQuery);
-    console.log(allQuery);
-    return
-    */
 
     for (const query of extraQueries) {
       console.log(query);
@@ -179,15 +99,6 @@ export class StoreService {
         indexes,
         timestamps: false,
       });
-      continue;
-      if (model.name == 'NftView' || model.name == 'Block') {
-        console.log(model.name, attributes, {
-          underscored: true,
-          freezeTableName: false,
-          schema: dbSchema,
-          indexes,
-        });
-      }
     }
     // console.log(this.sequelize.models);
     const extraQueries = [];

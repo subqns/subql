@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-// import { CreateCatDto, UpdateCatDto, DeleteCatDto } from '../cat.dto';
 import { Banner } from './Banner.entity';
 
 @Injectable()
-export class BannerService {
+export class BannerService implements OnModuleInit {
   constructor(
     @InjectRepository(Banner)
     private readonly bannerRepository: Repository<Banner>,

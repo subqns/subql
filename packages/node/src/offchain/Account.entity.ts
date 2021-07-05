@@ -10,6 +10,10 @@ import {
 
 @Entity()
 export class Account {
+  constructor(id: string) {
+    this.id = id;
+  }
+
   @PrimaryColumn({
     type: 'text',
     nullable: false,
