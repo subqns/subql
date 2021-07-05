@@ -6,6 +6,7 @@ import {
   makePluginByCombiningPlugins,
 } from 'graphile-utils';
 import { Plugin } from 'graphile-build';
+import * as _ from 'lodash';
 
 // https://www.graphile.org/postgraphile/make-change-nullability-plugin/
 const NftViewIdNullablePlugin = makePluginByCombiningPlugins(
@@ -46,7 +47,9 @@ const NftViewPlugin: Plugin = makeExtendSchemaPlugin(() => ({
         // see ../../../indexer/store.service.ts
         // await pgPool.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto" SCHEMA ${dbSchema} CASCADE`);
         // await pgPool.query(`ALTER TABLE ONLY ${dbSchema}.nft_views ALTER COLUMN id SET DEFAULT ${dbSchema}.gen_random_uuid()`);
-        let { rows } = await pgPool.query(`INSERT INTO ${dbSchema}.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`);
+        let { rows } = await pgPool.query(
+          `INSERT INTO ${dbSchema}.nft_views (viewer_id, nft_id) VALUES ('${args.viewerId}', '${args.nftId}') returning *`,
+        );
         let row = rows[0];
         return {
           id: row.id,
@@ -182,18 +185,58 @@ async function emptyAccountFallback(
   context,
   resolveInfo,
 ) {
-  const result = await resolve(source, args, context, resolveInfo);
-  console.log('result', result);
-  console.log('args', JSON.stringify(args));
-  console.log('source', source);
+  // ensureAccount
+  let dbSchema = context.projectSchema;
+  let pgClient = context.pgClient;
+  let id = args.id;
+  await pgClient.query(
+    `INSERT INTO ${dbSchema}.accounts (id) VALUES ('${id}') ON CONFLICT DO NOTHING`,
+  );
 
-  return result || { __identifiers: [args.id], id: args.id }
+  return await resolve();
+}
+
+async function ownedNftsHandler(resolve, source, args, context, resolveInfo) {
+  // let id = parent.__identifiers[0];
+  let id = source.id;
+  let { api } = context;
+  let dbSchema = context.projectSchema;
+  let pgPool = context.pgClient;
+
+  // let nfts = [];
+  let nftidxs = await api.query.ormlNft.tokensByOwner.entries(id);
+
+  for (let [i, nftidx] of nftidxs.entries()) {
+    // console.log(`nfts[${i}]: ${nft} ${nft.length}`);
+    let clzToken = nftidx[0];
+    const len = clzToken.length;
+    const classId = new Uint32Array(clzToken.slice(len - 4 - 8, len - 8))[0];
+    const tokenId = Buffer.from(clzToken.slice(len - 8, len)).readBigUInt64LE();
+    let nftId = `${classId}-${tokenId}`;
+
+    let nftdata = (
+      await api.query.ormlNft.tokens(classId, tokenId)
+    ).toJSON() as any;
+    console.log(nftdata);
+    console.log(
+      `UPDATE ${dbSchema}.nfts SET owner_id = '${id}' where id = '${nftId}'`,
+    );
+
+    await pgPool.query(
+      `UPDATE ${dbSchema}.nfts SET owner_id = '${id}' where id = '${nftId}'`,
+    );
+  }
+
+  return await resolve();
 }
 
 const EmptyAccountFallbackPlugin: Plugin = makeWrapResolversPlugin({
   Query: {
     account: emptyAccountFallback,
-  }
+  },
+  Account: {
+    ownedNfts: ownedNftsHandler,
+  },
 });
 
 const HijackRandomTypePlugin: Plugin = makeWrapResolversPlugin({
@@ -287,7 +330,7 @@ function GraphQLObjectTypeLogNamePlugin(builder) {
   let mylogger = (fields, build, context) => {
     if (fields.name == 'Account') {
       console.log(
-        "A new GraphQLObjectType is being constructed with name: ",
+        'A new GraphQLObjectType is being constructed with name: ',
         // Object.keys(fields),
         // build,
         // context,
@@ -308,14 +351,18 @@ function GraphQLObjectTypeLogNamePlugin(builder) {
       */
     }
     return fields;
-  }
-  builder.hook("GraphQLObjectType:fields", mylogger);
+  };
+  builder.hook('GraphQLObjectType:fields', mylogger);
 }
 
 const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
   typeDefs: gql`
     extend type Account {
       balance: BigInt
+      balanceHuman: String
+      ownedNft: Int
+      createdNft: Int
+      createdClass: Int
     }
   `,
   resolvers: {
@@ -323,16 +370,55 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
       balance: async (parent, args, context, resolveInfo) => {
         let id = parent.__identifiers[0];
         let { api } = context;
-        let { data: { free: balance } } = await api.query.system.account(id);
+        let {
+          data: { free: balance },
+        } = await api.query.system.account(id);
         let bn = balance.toBigInt();
         console.log(`${id}: ${bn}`);
         return bn;
+      },
+      balanceHuman: async (parent, args, context, resolveInfo) => {
+        let id = parent.__identifiers[0];
+        let { api } = context;
+        let {
+          data: { free: balance },
+        } = await api.query.system.account(id);
+        let bh = balance.toHuman();
+        console.log(`${id}: ${bh}`);
+        return bh;
+      },
+      ownedNft: async (parent, args, context, resolveInfo) => {
+        let id = parent.__identifiers[0];
+        let { api } = context;
+        let nfts = [];
+        let nftidxs = await api.query.ormlNft.tokensByOwner.entries(id);
+        return nftidxs.length;
+      },
+      createdNft: async (parent, args, context, resolveInfo) => {
+        let id = parent.__identifiers[0];
+        let dbSchema = context.projectSchema;
+        let pgPool = context.pgClient;
+        let { rowCount } = await pgPool.query(
+          `SELECT * FROM ${dbSchema}.nfts WHERE creator_id = '${id}'`,
+        );
+        console.log(`count: ${rowCount}`);
+        return rowCount;
+      },
+      createdClass: async (parent, args, context, resolveInfo) => {
+        let id = parent.__identifiers[0];
+        let dbSchema = context.projectSchema;
+        let pgPool = context.pgClient;
+        let { rowCount } = await pgPool.query(
+          `SELECT * FROM ${dbSchema}.classes WHERE creator_id = '${id}'`,
+        );
+        console.log(`count: ${rowCount}`);
+        return rowCount;
       },
     },
   },
 }));
 
-function NoopPlugin(builder){
+function NoopPlugin(builder) {
   console.log('I do not do anything, except nothing');
 }
 
