@@ -1,9 +1,13 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Injectable, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  OnApplicationShutdown,
+  OnModuleInit,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ApiPromise, WsProvider } from '@polkadot/api';
+import { ApiPromise, Keyring, WsProvider } from '@polkadot/api';
 import {
   ApiInterfaceRx,
   ApiOptions,
@@ -25,6 +29,7 @@ const NOT_SUPPORT = (name: string) => () => {
 @Injectable()
 export class ApiService implements OnApplicationShutdown, OnModuleInit {
   private api: ApiPromise;
+  private keyring: Keyring;
   private patchedApi: ApiPromise;
   private currentBlockHash: BlockHash;
   networkMeta: NetworkMetadataPayload;
@@ -73,7 +78,14 @@ export class ApiService implements OnApplicationShutdown, OnModuleInit {
     this.api.on('disconnected', () => {
       this.eventEmitter.emit(IndexerEvent.ApiConnected, { value: 0 });
     });
+
+    this.keyring = new Keyring({ type: 'sr25519', ss58Format: 50 });
+
     return this;
+  }
+
+  getKeyring(): Keyring {
+    return this.keyring;
   }
 
   getApi(): ApiPromise {

@@ -366,6 +366,9 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
       createdNft: Int
       createdClass: Int
     }
+    extend type Nft {
+      ownersId: [String]
+    }
   `,
   resolvers: {
     Account: {
@@ -426,6 +429,32 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
         );
         console.log(`count: ${rowCount}`);
         return rowCount;
+      },
+    },
+    // called only when nft exists in database
+    // make EmptyNftFallbackHandler maybe?
+    Nft: {
+      ownersId: async (parent, args, context, resolveInfo) => {
+        let id = parent.__identifiers[0];
+        let { api, keyring } = context;
+        let dbSchema = context.projectSchema;
+        let pgPool = context.pgClient;
+
+        console.log(parent, args);
+
+        let owners = await api.query.ormlNft.ownersByToken.entries(
+          id.split('-').map(Number),
+        );
+        let addrs = [];
+        for (let owner of owners) {
+          let key = owner[0];
+          const len = key.length;
+          key = key.buffer.slice(len - 32, len);
+          const addr = keyring.encodeAddress(new Uint8Array(key));
+          addrs.push(addr);
+        }
+
+        return addrs;
       },
     },
   },

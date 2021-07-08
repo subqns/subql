@@ -71,37 +71,42 @@ export class ApolloService implements OnModuleInit {
     const dbSchema = await this.projectService.getProjectSchema(
       this.config.subqueryName,
     );
-    return postgraphile(this.pgPool, [dbSchema, DEFAULT_DB_SCHEMA, ...jwtSchemas], {
-      ...jwtOptions,
-      ...graphiqlOptions,
-      simpleCollections: 'both',
-      graphqlRoute: '/graphql',
-      retryOnInitFail: true,
-      dynamicJson: true,
-      bodySizeLimit: '5MB',
-      enableCors: !isProd,
-      replaceAllPlugins: plugins,
-      subscriptions: true,
-      exportGqlSchemaPath: 'schema.graphql',
-      enableQueryBatching: true,
-      sortExport: true,
-      setofFunctionsContainNulls: false,
-      graphileBuildOptions: {
-        connectionFilterAllowNullInput: true,
-        connectionFilterRelations: true,
-        pgOmitListSuffix: false,
+    return postgraphile(
+      this.pgPool,
+      [dbSchema, DEFAULT_DB_SCHEMA, ...jwtSchemas],
+      {
+        ...jwtOptions,
+        ...graphiqlOptions,
+        simpleCollections: 'both',
+        graphqlRoute: '/graphql',
+        retryOnInitFail: true,
+        dynamicJson: true,
+        bodySizeLimit: '5MB',
+        enableCors: !isProd,
+        replaceAllPlugins: plugins,
+        subscriptions: true,
+        exportGqlSchemaPath: 'schema.graphql',
+        enableQueryBatching: true,
+        sortExport: true,
+        setofFunctionsContainNulls: false,
+        graphileBuildOptions: {
+          connectionFilterAllowNullInput: true,
+          connectionFilterRelations: true,
+          pgOmitListSuffix: false,
+        },
+        additionalGraphQLContextFromRequest: async (req, res) => {
+          return {
+            req,
+            res,
+            offchainSchema: DEFAULT_DB_SCHEMA,
+            projectSchema: dbSchema,
+            sequelize: this.sequelize,
+            api: this.apiService.getApi(),
+            keyring: this.apiService.getKeyring(),
+          };
+        },
       },
-      additionalGraphQLContextFromRequest: async (req, res) => {
-        return {
-          req,
-          res,
-          offchainSchema: DEFAULT_DB_SCHEMA,
-          projectSchema: dbSchema,
-          sequelize: this.sequelize,
-          api: this.apiService.getApi(),
-        };
-      },
-    });
+    );
   }
 
   async createApolloServer() {
@@ -129,6 +134,7 @@ export class ApolloService implements OnModuleInit {
           pgClient: this.pgPool,
           sequelize: this.sequelize,
           api: this.apiService.getApi(),
+          keyring: this.apiService.getKeyring(),
         };
       },
       /* if the isJwt is enabled , context.pgRole and context.jwtClaims would be set, for example:
@@ -211,6 +217,7 @@ export class ApolloService implements OnModuleInit {
           pgClient: this.pgPool,
           sequelize: this.sequelize,
           api: this.apiService.getApi(),
+          keyring: this.apiService.getKeyring(),
         };
       },
       cacheControl: {

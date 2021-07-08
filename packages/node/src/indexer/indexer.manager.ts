@@ -4,7 +4,7 @@
 import path from 'path';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ApiPromise } from '@polkadot/api';
+import { ApiPromise, Keyring } from '@polkadot/api';
 import {
   buildSchemaInlined,
   getAllEntitiesRelations,
@@ -31,6 +31,7 @@ const logger = getLogger('index');
 @Injectable()
 export class IndexerManager implements OnModuleInit {
   private api: ApiPromise;
+  private keyring: Keyring;
   private subqueryState: SubqueryModel;
   private prevSpecVersion?: number;
   private initialized: boolean;
@@ -126,11 +127,13 @@ export class IndexerManager implements OnModuleInit {
     await this.apiService.init();
     await this.fetchService.init();
     this.api = this.apiService.getApi();
+    this.keyring = this.apiService.getKeyring();
     this.subqueryState = await this.ensureProject(this.nodeConfig.subqueryName);
     await this.initDbSchema();
     setGlobal({
       patchedApi: await this.apiService.getPatchedApi(),
       api: this.api,
+      keyring: this.keyring,
       store: this.storeService.getStore(),
       logger: getLogger('nftmart'),
     });
@@ -167,7 +170,7 @@ export class IndexerManager implements OnModuleInit {
   }
 
   private async ensureProject(name: string): Promise<SubqueryModel> {
-    let project = await this.subqueryRepo.findOne({where: {name}});
+    let project = await this.subqueryRepo.findOne({ where: { name } });
     const { chain, genesisHash } = this.apiService.networkMeta;
     if (!project) {
       let projectSchema: string;
@@ -177,7 +180,7 @@ export class IndexerManager implements OnModuleInit {
       } else {
         projectSchema = `subquery_${name}`;
         const schemas = await this.sequelize.showAllSchemas(undefined);
-        if (!((schemas as unknown) as string[]).includes(projectSchema)) {
+        if (!(schemas as unknown as string[]).includes(projectSchema)) {
           await this.sequelize.createSchema(projectSchema, undefined);
         }
       }
