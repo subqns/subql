@@ -7,6 +7,7 @@ import {
 } from 'graphile-utils';
 import { Plugin } from 'graphile-build';
 import * as _ from 'lodash';
+import { BN } from 'bn.js';
 
 // https://www.graphile.org/postgraphile/make-change-nullability-plugin/
 const NftViewIdNullablePlugin = makePluginByCombiningPlugins(
@@ -358,7 +359,8 @@ function GraphQLObjectTypeLogNamePlugin(builder) {
 const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
   typeDefs: gql`
     extend type Account {
-      balance: BigInt
+      balance: Float
+      balanceBigInt: BigInt
       balanceHuman: String
       ownedNft: Int
       createdNft: Int
@@ -368,6 +370,17 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
   resolvers: {
     Account: {
       balance: async (parent, args, context, resolveInfo) => {
+        let id = parent.__identifiers[0];
+        let { api } = context;
+        let {
+          data: { free: balance },
+        } = await api.query.system.account(id);
+        let bn = balance.toBigInt();
+        let bf = Number(bn.toString()) / Number('1000000000000');
+        console.log(`${id}: ${bf}`);
+        return bf;
+      },
+      balanceBigInt: async (parent, args, context, resolveInfo) => {
         let id = parent.__identifiers[0];
         let { api } = context;
         let {
