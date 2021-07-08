@@ -72,6 +72,12 @@ export class StoreService {
       `CREATE OR REPLACE FUNCTION ${dbSchema}.accounts_name(acc ${dbSchema}.accounts) RETURNS text AS $$
         SELECT name FROM ${offchainSchema}.offchain_account WHERE id = acc.id
         $$ LANGUAGE sql STABLE;`,
+
+      `CREATE OR REPLACE VIEW public.orders AS SELECT * FROM ${dbSchema}.orders`,
+      `CREATE OR REPLACE VIEW public.classes AS SELECT * FROM ${dbSchema}.classes`,
+      `CREATE OR REPLACE VIEW public.categories AS SELECT * FROM ${dbSchema}.categories`,
+      `CREATE OR REPLACE VIEW public.nfts AS SELECT * FROM ${dbSchema}.nfts`,
+      `CREATE OR REPLACE VIEW public.accounts AS SELECT * FROM ${dbSchema}.accounts`,
     ];
 
     for (const query of extraQueries) {
