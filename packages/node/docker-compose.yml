@@ -36,3 +36,32 @@ services:
       ADMINER_DEFAULT_DB_NAME: postgres
     ports:
       - 8090:8080
+
+  caddy:
+    restart: always
+    image: caddy
+    entrypoint:
+    - caddy
+    command:
+    - run
+    - -config
+    - /Caddyfile
+    volumes:
+    - ./Caddyfile:/Caddyfile
+    ports:
+    - 8040:80
+
+  caddy-dev:
+    profiles:
+    - dev
+    restart: always
+    image: caddy
+    entrypoint:
+    - caddy
+    command:
+    - run
+    - -config
+    - /Caddyfile
+    volumes:
+    - ./Caddyfile.dev:/Caddyfile
+    network_mode: host

@@ -1,0 +1,12 @@
+:80 {
+  route /* {
+    reverse_proxy http://subql:3000 {
+      header_up Host "localhost:3000"
+    }
+  }
+  route /api/rest {
+    reverse_proxy http://hasura:8080 {
+      header_up Host "localhost:8080"
+    }
+  }
+}
