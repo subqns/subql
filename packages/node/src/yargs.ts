@@ -77,6 +77,13 @@ export function getYargsOption() {
       type: 'boolean',
       default: false,
     },
+    'follow-latest-block': {
+      demandOption: false,
+      describe:
+        'Set startBlock to current latest block (for development purpose only)',
+      type: 'boolean',
+      default: false,
+    },
   });
 }
 

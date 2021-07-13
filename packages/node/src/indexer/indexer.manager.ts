@@ -141,13 +141,23 @@ export class IndexerManager implements OnModuleInit {
   }
 
   async start(): Promise<void> {
-    void this.fetchService
-      .startLoop(this.subqueryState.nextBlockHeight)
-      .catch((err) => {
-        logger.error(err, 'failed to fetch block');
-        // FIXME: retry before exit
-        process.exit(1);
-      });
+    const latestBlock = await this.api.rpc.chain.getBlock();
+    const latestBlockHeight = latestBlock.block.header.number.toNumber();
+    const nextBlockHeight = this.subqueryState.nextBlockHeight;
+    const followLatestBlock = this.nodeConfig.followLatestBlock;
+
+    const blockHeight = followLatestBlock ? latestBlockHeight : nextBlockHeight;
+    /*
+    console.log(`latestBlockHeight: ${latestBlockHeight}`);
+    console.log(`nextBlockHeight: ${nextBlockHeight}`);
+    console.log(`followLatestBlock: ${followLatestBlock}`);
+    console.log(`blockHeight: ${blockHeight}`);
+    */
+    void this.fetchService.startLoop(blockHeight).catch((err) => {
+      logger.error(err, 'failed to fetch block');
+      // FIXME: retry before exit
+      process.exit(1);
+    });
     this.fetchService.register((block) => this.indexBlock(block));
   }
 

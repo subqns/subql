@@ -25,6 +25,7 @@ export interface IConfig {
   readonly logLevel?: LevelWithSilent;
   readonly queryLimit: number;
   readonly indexCountLimit: number;
+  readonly followLatestBlock: boolean;
 }
 
 export type MinConfig = Partial<Omit<IConfig, 'subqueryName' | 'subquery'>> &
@@ -39,6 +40,7 @@ const DEFAULT_CONFIG = {
   debug: false,
   queryLimit: 100,
   indexCountLimit: 10,
+  followLatestBlock: false,
 };
 
 export class NodeConfig implements IConfig {
@@ -123,6 +125,10 @@ export class NodeConfig implements IConfig {
 
   get indexCountLimit(): number {
     return this._config.indexCountLimit;
+  }
+
+  get followLatestBlock(): boolean {
+    return this._config.followLatestBlock;
   }
 
   merge(config: Partial<IConfig>): this {
