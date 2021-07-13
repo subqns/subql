@@ -207,6 +207,8 @@ async function ownedNftsHandler(resolve, source, args, context, resolveInfo) {
   // let nfts = [];
   let nftidxs = await api.query.ormlNft.tokensByOwner.entries(id);
 
+  console.log(`ownedNftsHandler: has ${nftidxs.length} nfts owned by account`);
+
   for (let [i, nftidx] of nftidxs.entries()) {
     // console.log(`nfts[${i}]: ${nft} ${nft.length}`);
     let clzToken = nftidx[0];
@@ -214,13 +216,14 @@ async function ownedNftsHandler(resolve, source, args, context, resolveInfo) {
     const classId = new Uint32Array(clzToken.slice(len - 4 - 8, len - 8))[0];
     const tokenId = Buffer.from(clzToken.slice(len - 8, len)).readBigUInt64LE();
     let nftId = `${classId}-${tokenId}`;
-
+    /*
     let nftdata = (
       await api.query.ormlNft.tokens(classId, tokenId)
     ).toJSON() as any;
     console.log(nftdata);
+    */
     console.log(
-      `UPDATE ${dbSchema}.nfts SET owner_id = '${id}' where id = '${nftId}'`,
+      `${i} UPDATE ${dbSchema}.nfts SET owner_id = '${id}' where id = '${nftId}'`,
     );
 
     await pgPool.query(
@@ -408,6 +411,7 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
         let { api } = context;
         let nfts = [];
         let nftidxs = await api.query.ormlNft.tokensByOwner.entries(id);
+        console.log(`owned Nft count: ${nftidxs.length}`);
         return nftidxs.length;
       },
       createdNft: async (parent, args, context, resolveInfo) => {
@@ -417,7 +421,7 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
         let { rowCount } = await pgPool.query(
           `SELECT * FROM ${dbSchema}.nfts WHERE creator_id = '${id}'`,
         );
-        console.log(`count: ${rowCount}`);
+        console.log(`created Nft count: ${rowCount}`);
         return rowCount;
       },
       createdClass: async (parent, args, context, resolveInfo) => {
@@ -427,7 +431,7 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
         let { rowCount } = await pgPool.query(
           `SELECT * FROM ${dbSchema}.classes WHERE creator_id = '${id}'`,
         );
-        console.log(`count: ${rowCount}`);
+        console.log(`created class count: ${rowCount}`);
         return rowCount;
       },
     },
@@ -440,7 +444,7 @@ const AccountBalancePlugin: Plugin = makeExtendSchemaPlugin((build) => ({
         let dbSchema = context.projectSchema;
         let pgPool = context.pgClient;
 
-        console.log(parent, args);
+        // console.log(parent, args);
 
         let owners = await api.query.ormlNft.ownersByToken.entries(
           id.split('-').map(Number),

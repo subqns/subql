@@ -73,11 +73,13 @@ export class StoreService {
         SELECT name FROM ${offchainSchema}.offchain_account WHERE id = acc.id
         $$ LANGUAGE sql STABLE;`,
       `DROP VIEW IF EXISTS public.orders`,
+      `DROP VIEW IF EXISTS public.order_items`,
       `DROP VIEW IF EXISTS public.classes`,
       `DROP VIEW IF EXISTS public.categories`,
       `DROP VIEW IF EXISTS public.nfts`,
       `DROP VIEW IF EXISTS public.accounts`,
       `CREATE OR REPLACE VIEW public.orders AS SELECT * FROM ${dbSchema}.orders`,
+      `CREATE OR REPLACE VIEW public.order_items AS SELECT * FROM ${dbSchema}.order_items`,
       `CREATE OR REPLACE VIEW public.classes AS SELECT * FROM ${dbSchema}.classes`,
       `CREATE OR REPLACE VIEW public.categories AS SELECT * FROM ${dbSchema}.categories`,
       `CREATE OR REPLACE VIEW public.nfts AS SELECT * FROM ${dbSchema}.nfts`,
