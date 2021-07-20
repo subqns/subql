@@ -61,7 +61,7 @@ export class StoreService {
   // it's suitable for defining functions / views that need to access both schemas
   async syncoffchain(dbSchema: string): Promise<void> {
     let offchainSchema = process.env.DB_SCHEMA ?? 'public';
-    const extraQueries = [
+    let extraQueries = [
       // populate data, note that updated_at isn't updated unless row is changed via typeorm
       // can also be done in Account.service's onModuleInit stage
       `INSERT INTO ${offchainSchema}.offchain_account (id, name) VALUES
@@ -72,19 +72,24 @@ export class StoreService {
       `CREATE OR REPLACE FUNCTION ${dbSchema}.accounts_name(acc ${dbSchema}.accounts) RETURNS text AS $$
         SELECT name FROM ${offchainSchema}.offchain_account WHERE id = acc.id
         $$ LANGUAGE sql STABLE;`,
-      `DROP VIEW IF EXISTS public.orders`,
-      `DROP VIEW IF EXISTS public.order_items`,
-      `DROP VIEW IF EXISTS public.classes`,
-      `DROP VIEW IF EXISTS public.categories`,
-      `DROP VIEW IF EXISTS public.nfts`,
-      `DROP VIEW IF EXISTS public.accounts`,
-      `CREATE OR REPLACE VIEW public.orders AS SELECT * FROM ${dbSchema}.orders`,
-      `CREATE OR REPLACE VIEW public.order_items AS SELECT * FROM ${dbSchema}.order_items`,
-      `CREATE OR REPLACE VIEW public.classes AS SELECT * FROM ${dbSchema}.classes`,
-      `CREATE OR REPLACE VIEW public.categories AS SELECT * FROM ${dbSchema}.categories`,
-      `CREATE OR REPLACE VIEW public.nfts AS SELECT * FROM ${dbSchema}.nfts`,
-      `CREATE OR REPLACE VIEW public.accounts AS SELECT * FROM ${dbSchema}.accounts`,
     ];
+
+    if (false) {
+      extraQueries = extraQueries.concat([
+	`DROP VIEW IF EXISTS public.orders`,
+	`DROP VIEW IF EXISTS public.order_items`,
+	`DROP VIEW IF EXISTS public.classes`,
+	`DROP VIEW IF EXISTS public.categories`,
+	`DROP VIEW IF EXISTS public.nfts`,
+	`DROP VIEW IF EXISTS public.accounts`,
+	`CREATE OR REPLACE VIEW public.orders AS SELECT * FROM ${dbSchema}.orders`,
+	`CREATE OR REPLACE VIEW public.order_items AS SELECT * FROM ${dbSchema}.order_items`,
+	`CREATE OR REPLACE VIEW public.classes AS SELECT * FROM ${dbSchema}.classes`,
+	`CREATE OR REPLACE VIEW public.categories AS SELECT * FROM ${dbSchema}.categories`,
+	`CREATE OR REPLACE VIEW public.nfts AS SELECT * FROM ${dbSchema}.nfts`,
+	`CREATE OR REPLACE VIEW public.accounts AS SELECT * FROM ${dbSchema}.accounts`,
+      ])
+    }
 
     for (const query of extraQueries) {
       console.log(query);
