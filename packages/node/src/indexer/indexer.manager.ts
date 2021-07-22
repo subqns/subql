@@ -145,8 +145,14 @@ export class IndexerManager implements OnModuleInit {
     const latestBlockHeight = latestBlock.block.header.number.toNumber();
     const nextBlockHeight = this.subqueryState.nextBlockHeight;
     const followLatestBlock = this.nodeConfig.followLatestBlock;
+    const startBlock = this.nodeConfig.startBlock;
 
-    const blockHeight = followLatestBlock ? latestBlockHeight : nextBlockHeight;
+    const blockHeight =
+      startBlock != 0
+        ? startBlock
+        : followLatestBlock
+        ? latestBlockHeight
+        : nextBlockHeight;
     /*
     console.log(`latestBlockHeight: ${latestBlockHeight}`);
     console.log(`nextBlockHeight: ${nextBlockHeight}`);

@@ -26,6 +26,7 @@ export interface IConfig {
   readonly queryLimit: number;
   readonly indexCountLimit: number;
   readonly followLatestBlock: boolean;
+  readonly startBlock: number;
 }
 
 export type MinConfig = Partial<Omit<IConfig, 'subqueryName' | 'subquery'>> &
@@ -129,6 +130,10 @@ export class NodeConfig implements IConfig {
 
   get followLatestBlock(): boolean {
     return this._config.followLatestBlock;
+  }
+
+  get startBlock(): number {
+    return this._config.startBlock;
   }
 
   merge(config: Partial<IConfig>): this {

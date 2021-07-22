@@ -84,6 +84,12 @@ export function getYargsOption() {
       type: 'boolean',
       default: false,
     },
+    'start-block': {
+      demandOption: false,
+      describe: 'Set startBlock to given value',
+      type: 'number',
+      default: 0,
+    },
   });
 }
 
