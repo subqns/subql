@@ -42,6 +42,7 @@ const DEFAULT_CONFIG = {
   queryLimit: 100,
   indexCountLimit: 10,
   followLatestBlock: false,
+  startBlock: 0,
 };
 
 export class NodeConfig implements IConfig {
