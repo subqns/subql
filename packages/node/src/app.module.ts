@@ -17,6 +17,7 @@ import { BannerModule } from './offchain/Banner.module';
 import { NftViewModule } from './offchain/NftView.module';
 import { AccountModule } from './offchain/Account.module';
 import { CatModule } from './offchain/Cat.module';
+import { HealthModule } from './offchain/Health.module';
 
 export class NodeOption {}
 
@@ -56,6 +57,7 @@ export class NodeOption {}
     NftViewModule,
     AccountModule,
     CatModule,
+    HealthModule,
   ],
   controllers: [],
 })
