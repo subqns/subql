@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {Command, flags} from '@oclif/command';
-import {commonRules, Validator} from '@subql/validator';
+import {commonRules, Validator} from '@subquery/validator';
 import chalk from 'chalk';
 
 export default class Validate extends Command {

@@ -15,12 +15,12 @@ import {
   SubqlBlockFilter,
   SubqlCallFilter,
   SubqlEventFilter,
-} from '@subql/common';
+} from '@subquery/common';
 import {
   SubstrateBlock,
   SubstrateEvent,
   SubstrateExtrinsic,
-} from '@subql/types';
+} from '@subquery/types';
 import { last, merge, range } from 'lodash';
 import { BlockContent } from '../indexer/types';
 

@@ -5,7 +5,7 @@ import {
   SubstrateBlock,
   SubstrateEvent,
   SubstrateExtrinsic,
-} from '@subql/types';
+} from '@subquery/types';
 
 export interface BlockContent {
   block: SubstrateBlock;

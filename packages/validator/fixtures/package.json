@@ -7,7 +7,7 @@
     "build": "tsc -b",
     "prepack": "rm -rf dist && npm build",
     "test": "jest",
-    "codegen": "./node_modules/.bin/subql codegen"
+    "codegen": "./node_modules/.bin/subquery codegen"
   },
 
   "homepage": "https://github.com/subquery/subql-starter",
@@ -21,8 +21,8 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@polkadot/api": "^3",
-    "@subql/types": "^0.6.0",
+    "@subquery/types": "^0.6.0",
     "typescript": "^4.1.3",
-    "@subql/cli": "^0.7.3"
+    "@subquery/cli": "^0.7.3"
   }
 }

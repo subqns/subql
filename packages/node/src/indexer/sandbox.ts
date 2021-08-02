@@ -4,8 +4,8 @@
 import fs from 'fs';
 import path from 'path';
 import { ApiPromise } from '@polkadot/api';
-import { levelFilter } from '@subql/common';
-import { Store } from '@subql/types';
+import { levelFilter } from '@subquery/common';
+import { Store } from '@subquery/types';
 import { merge } from 'lodash';
 import { NodeVM, NodeVMOptions, VMScript } from 'vm2';
 import { NodeConfig } from '../configure/NodeConfig';

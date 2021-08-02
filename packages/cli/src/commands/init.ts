@@ -31,7 +31,7 @@ export default class Init extends Command {
 
     project.name = args.projectName
       ? args.projectName
-      : await cli.prompt('Project name', {default: 'subql-starter', required: true});
+      : await cli.prompt('Project name', {default: 'subquery-starter', required: true});
     if (fs.existsSync(path.join(process.cwd(), `${project.name}`))) {
       throw new Error(`Directory ${project.name} exists, try another project name`);
     }

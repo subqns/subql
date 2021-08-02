@@ -10,8 +10,8 @@ import {
   loadProjectManifest,
   getAllJsonObjects,
   setJsonObjectType,
-} from '@subql/common';
-import {GraphQLEntityField, GraphQLJsonFieldType, GraphQLEntityIndex} from '@subql/common/graphql/types';
+} from '@subquery/common';
+import {GraphQLEntityField, GraphQLJsonFieldType, GraphQLEntityIndex} from '@subquery/common/graphql/types';
 import ejs from 'ejs';
 import {upperFirst} from 'lodash';
 import rimraf from 'rimraf';

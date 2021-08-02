@@ -9,7 +9,7 @@ import {
   buildSchemaInlined,
   getAllEntitiesRelations,
   SubqlKind,
-} from '@subql/common';
+} from '@subquery/common';
 import { QueryTypes, Sequelize } from 'sequelize';
 import { NodeConfig } from '../configure/NodeConfig';
 import { SubqueryProject } from '../configure/project.model';
@@ -22,7 +22,7 @@ import { FetchService } from './fetch.service';
 import { StoreService } from './store.service';
 import { BlockContent } from './types';
 import { handleBlock, handleCall, handleEvent } from '@nftmart/subql';
-import { setGlobal } from '@subql/types';
+import { setGlobal } from '@subquery/types';
 
 const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
 

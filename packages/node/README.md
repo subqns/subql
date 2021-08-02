@@ -1,18 +1,18 @@
-# @subql-node
+# @subquery-node
 ## Description
 
-Indexer service in our @subql toolkit, can load user's subquery then fetch, process and persist to db accordingly.
+Indexer service in our @subquery toolkit, can load user's subquery then fetch, process and persist to db accordingly.
 
 ## Installation
 
 ```bash
-$ npm i -g @subql/node
+$ npm i -g @subquery/node
 ```
 
 ## Running the app
 
 ```bash
-$> subql-node
+$> subquery-node
 
 Options:
       --help              Show help                                    [boolean]

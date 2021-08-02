@@ -1,5 +1,5 @@
 {
-  "name": "subql-mono",
+  "name": "subquery-mono",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -36,9 +36,9 @@
     "typescript": "latest"
   },
   "scripts": {
-    "build": "yarn workspace @subql/node build",
-    "start": "yarn workspace @subql/node start",
-    "start:prod": "yarn workspace @subql/node start:prod",
+    "build": "yarn workspace @subquery/node build",
+    "start": "yarn workspace @subquery/node start",
+    "start:prod": "yarn workspace @subquery/node start:prod",
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
     "lint": "eslint packages --ext .ts",

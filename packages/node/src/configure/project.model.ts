@@ -5,8 +5,8 @@ import {
   loadProjectManifest,
   ProjectManifest,
   SubqlDataSource,
-} from '@subql/common';
-import { ProjectNetwork } from '@subql/common/project/models';
+} from '@subquery/common';
+import { ProjectNetwork } from '@subquery/common/project/models';
 import { getLogger } from '../utils/logger';
 import { prepareProjectDir } from '../utils/project';
 

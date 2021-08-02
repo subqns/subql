@@ -7,10 +7,10 @@ import {Rule, RuleType} from './rule';
 export class RequireCliDep implements Rule {
   type = RuleType.PackageJSON;
   name = 'require-cli-dep';
-  description = '`@subql/cli` must be defined as a dependency in `package.json`';
+  description = '`@subquery/cli` must be defined as a dependency in `package.json`';
 
   validate(ctx: Context): boolean {
-    const pkgName = '@subql/cli';
+    const pkgName = '@subquery/cli';
     return (
       Object.keys(ctx.data.pkg.devDependencies ?? {}).includes(pkgName) ||
       Object.keys(ctx.data.pkg.dependencies ?? {}).includes(pkgName)

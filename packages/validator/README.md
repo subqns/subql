@@ -1,1 +1,1 @@
-# @subql/validator
+# @subquery/validator

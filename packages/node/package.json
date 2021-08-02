@@ -1,6 +1,6 @@
 {
-  "name": "@subql/node",
-  "version": "0.13.0",
+  "name": "@subquery/node",
+  "version": "0.13.2",
   "description": "",
   "author": "Ian He",
   "license": "Apache-2.0",
@@ -22,9 +22,10 @@
   "homepage": "https://github.com/subquery/subql",
   "repository": "github:subquery/subql",
   "bin": {
-    "subql-node": "./bin/run"
+    "subquery-node": "./bin/run"
   },
   "dependencies": {
+    "@graphile-contrib/pg-many-to-many": "^1.0.1",
     "@nestjs/common": "^7.6.9",
     "@nestjs/core": "^7.6.1",
     "@nestjs/event-emitter": "^0.0.2",
@@ -34,8 +35,8 @@
     "@nestjs/typeorm": "^7.1.5",
     "@nftmart/subql": "workspace:*",
     "@polkadot/api": "latest",
-    "@subql/common": "workspace:*",
-    "@subql/types": "workspace:*",
+    "@subquery/common": "workspace:*",
+    "@subquery/types": "workspace:*",
     "@willsoto/nestjs-prometheus": "^3.0.0",
     "app-module-path": "^2.2.0",
     "bn.js": "^5.2.0",

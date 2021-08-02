@@ -1,4 +1,4 @@
-# @subql/query
+# @subquery/query
 
 ## run an app
 

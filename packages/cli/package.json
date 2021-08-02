@@ -1,18 +1,18 @@
 {
-  "name": "@subql/cli",
+  "name": "@subquery/cli",
   "description": "cli for subquery",
-  "version": "0.9.3",
+  "version": "0.9.8",
   "author": "Ian He",
   "bin": {
-    "subql": "./bin/run"
+    "subquery": "./bin/run"
   },
   "bugs": "https://github.com/subquery/subql/issues",
   "dependencies": {
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/plugin-help": "^3.2.1",
-    "@subql/common": "workspace:*",
-    "@subql/validator": "workspace:*",
+    "@subquery/common": "workspace:*",
+    "@subquery/validator": "workspace:*",
     "@types/ejs": "^3.0.5",
     "chalk": "^4.1.0",
     "cli-ux": "^5.5.1",
@@ -48,7 +48,7 @@
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "subql",
+    "bin": "subquery",
     "plugins": [
       "@oclif/plugin-help"
     ]

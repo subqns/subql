@@ -1,7 +1,7 @@
 // Copyright 2020-2021 OnFinality Limited authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { GraphQLModelsType } from '@subql/common/graphql/types';
+import { GraphQLModelsType } from '@subquery/common/graphql/types';
 import { ModelAttributes, DataTypes, Sequelize } from 'sequelize';
 import { ModelAttributeColumnOptions } from 'sequelize/types/lib/model';
 

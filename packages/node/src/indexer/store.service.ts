@@ -3,8 +3,8 @@
 
 import assert from 'assert';
 import { Injectable } from '@nestjs/common';
-import { GraphQLModelsRelations } from '@subql/common/graphql/types';
-import { Entity, Store } from '@subql/types';
+import { GraphQLModelsRelations } from '@subquery/common/graphql/types';
+import { Entity, Store } from '@subquery/types';
 import { flatten, camelCase } from 'lodash';
 import { QueryTypes, Sequelize, Transaction, Utils } from 'sequelize';
 import { NodeConfig } from '../configure/NodeConfig';
