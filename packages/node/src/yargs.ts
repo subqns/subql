@@ -4,6 +4,7 @@
 import { argv as yargv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import yargs from 'yargs/yargs';
+import { projectDir } from '@nftmart/subql';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function getYargsOption() {
@@ -13,7 +14,7 @@ export function getYargsOption() {
       demandOption: false,
       describe: 'Local path of the subquery project',
       type: 'string',
-      default: '../nftmart',
+      default: projectDir,
     },
     'subquery-name': {
       alias: 'n',
