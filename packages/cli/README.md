@@ -21,7 +21,7 @@ $ npm install -g @subquery/cli
 $ subquery COMMAND
 running command...
 $ subquery (-v|--version|version)
-@subquery/cli/0.9.7 linux-x64 node-v16.0.0
+@subquery/cli/0.9.9 linux-x64 node-v16.0.0
 $ subquery --help [COMMAND]
 USAGE
   $ subquery COMMAND
@@ -51,7 +51,7 @@ OPTIONS
   --file=file
 ```
 
-_See code: [lib/commands/build.js](https://github.com/packages/cli/blob/v0.9.7/lib/commands/build.js)_
+_See code: [lib/commands/build.js](https://github.com/packages/cli/blob/v0.9.9/lib/commands/build.js)_
 
 ## `subquery codegen`
 
@@ -66,7 +66,7 @@ OPTIONS
   --file=file
 ```
 
-_See code: [lib/commands/codegen.js](https://github.com/packages/cli/blob/v0.9.7/lib/commands/codegen.js)_
+_See code: [lib/commands/codegen.js](https://github.com/packages/cli/blob/v0.9.9/lib/commands/codegen.js)_
 
 ## `subquery help [COMMAND]`
 
@@ -101,7 +101,7 @@ OPTIONS
   --starter
 ```
 
-_See code: [lib/commands/init.js](https://github.com/packages/cli/blob/v0.9.7/lib/commands/init.js)_
+_See code: [lib/commands/init.js](https://github.com/packages/cli/blob/v0.9.9/lib/commands/init.js)_
 
 ## `subquery validate`
 
@@ -116,5 +116,5 @@ OPTIONS
   --silent
 ```
 
-_See code: [lib/commands/validate.js](https://github.com/packages/cli/blob/v0.9.7/lib/commands/validate.js)_
+_See code: [lib/commands/validate.js](https://github.com/packages/cli/blob/v0.9.9/lib/commands/validate.js)_
 <!-- commandsstop -->
