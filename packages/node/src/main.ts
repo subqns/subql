@@ -2,15 +2,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule, pgOptions } from './app.module';
 import { AppNodeModule } from './app.node.module';
 import { AppQueryModule } from './app.query.module';
 import { IndexerManager } from './indexer/indexer.manager';
 import { getLogger, NestLogger } from './utils/logger';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Client } from 'pg';
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const APP = process.env.APP || "all";
+
+async function ensureSchema(){
+  console.log(`ensure default schema ${pgOptions.schema} exists`);
+  const client = new Client(pgOptions);
+  await client.connect();
+  await client.query(`CREATE SCHEMA IF NOT EXISTS ${pgOptions.schema}`);
+  await client.end();
+}
 
 async function bootstrapNode() {
   const app = await NestFactory.create(AppNodeModule);
@@ -28,6 +37,8 @@ async function bootstrapQuery() {
 }
 
 async function bootstrapAll() {
+  await ensureSchema();
+
   const appOptions = {cors: true}
   const app = await NestFactory.create(AppModule, appOptions);
   // await app.get('InitSchema')();

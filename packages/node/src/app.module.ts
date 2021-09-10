@@ -21,26 +21,35 @@ import { HealthModule } from './offchain/Health.module';
 
 export class NodeOption {}
 
+export const dbOptions = {
+  host: process.env.DB_HOST ?? '127.0.0.1',
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+  username: process.env.DB_USER ?? 'postgres',
+  password: process.env.DB_PASS ?? 'nftmart',
+  database: process.env.DB_DATABASE ?? 'postgres',
+  schema: process.env.DB_SCHEMA ?? 'public',
+}
+
+export const pgOptions = {
+  host: process.env.DB_HOST ?? '127.0.0.1',
+  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+  user: process.env.DB_USER ?? 'postgres',
+  password: process.env.DB_PASS ?? 'nftmart',
+  database: process.env.DB_DATABASE ?? 'postgres',
+  schema: process.env.DB_SCHEMA ?? 'public',
+  ssl: !!process.env.DB_SSL,
+}
+
 @Module({
   imports: [
     DbModule.forRoot({
-      host: process.env.DB_HOST ?? '127.0.0.1',
-      port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
-      username: process.env.DB_USER ?? 'postgres',
-      password: process.env.DB_PASS ?? 'nftmart',
-      database: process.env.DB_DATABASE ?? 'postgres',
-      schema: process.env.DB_SCHEMA ?? 'public',
+      ...dbOptions,
       ssl: !!process.env.DB_SSL,
     }),
     TypeOrmModule.forRoot({
+      ...dbOptions,
       type: 'postgres',
-      host: process.env.DB_HOST ?? '127.0.0.1',
-      port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
-      username: process.env.DB_USER ?? 'postgres',
-      password: process.env.DB_PASS ?? 'nftmart',
-      database: process.env.DB_DATABASE ?? 'postgres',
-      schema: process.env.DB_SCHEMA ?? 'public',
-      entityPrefix: 'offchain_',
+      // entityPrefix: 'offchain_',
       autoLoadEntities: true,
       synchronize: true,
     }),
