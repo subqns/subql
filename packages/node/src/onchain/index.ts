@@ -5,8 +5,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Block } from './Block.entity';
 import { BlockService } from './Block.service';
-import { Subquery } from './Subquery.entity';
-import { SubqueryService } from './Subquery.service';
+import { Subqns } from './Subqns.entity';
+import { SubqnsService } from './Subqns.service';
 
 
 export async function processBlock(block: SubstrateBlock) {
@@ -26,9 +26,9 @@ export const OnchainModules = [
 ];
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Block, Subquery])],
-  providers: [BlockService, SubqueryService],
+  imports: [TypeOrmModule.forFeature([Block, Subqns])],
+  providers: [BlockService, SubqnsService],
   controllers: [],
-  exports: [BlockService, SubqueryService],
+  exports: [BlockService, SubqnsService],
 })
 export class OnchainModule {}

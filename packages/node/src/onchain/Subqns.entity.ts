@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Subquery {
+export class Subqns {
   @PrimaryGeneratedColumn({
     type: 'int',
   })

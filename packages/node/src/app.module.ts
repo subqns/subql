@@ -13,10 +13,9 @@ import { RouterModule } from './router/router.module';
 // import { CatModule } from './cat/cat.module';
 // import { OrmCatModule } from './cat/orm/cat.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BannerModule } from './offchain/Banner.module';
-import { NftViewModule } from './offchain/NftView.module';
-import { AccountModule } from './offchain/Account.module';
-import { CatModule } from './offchain/Cat.module';
+
+// import { OffchainModules } from './offchain';
+import { OnchainModule } from './onchain';
 import { HealthModule } from './offchain/Health.module';
 
 export class NodeOption {}
@@ -58,14 +57,12 @@ export const pgOptions = {
     ScheduleModule.forRoot(),
     IndexerModule,
     MetaModule,
-    GraphqlModule,
-    RouterModule,
+    // GraphqlModule,
+    // RouterModule,
     // CatModule,
     // OrmCatModule,
-    BannerModule,
-    NftViewModule,
-    AccountModule,
-    CatModule,
+    // ...OffchainModules,
+    OnchainModule,
     HealthModule,
   ],
   controllers: [],

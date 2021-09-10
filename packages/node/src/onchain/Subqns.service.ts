@@ -4,27 +4,27 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial } from 'typeorm';
-import { Subquery } from './Subquery.entity';
+import { Subqns } from './Subqns.entity';
 
 @Injectable()
-export class SubqueryService implements OnModuleInit {
+export class SubqnsService implements OnModuleInit {
   constructor(
-    @InjectRepository(Subquery)
-    private readonly subqueryRepository: Repository<Subquery>,
+    @InjectRepository(Subqns)
+    private readonly subqueryRepository: Repository<Subqns>,
   ) {}
 
   async onModuleInit(): Promise<void> {
   }
 
-  create(something: DeepPartial<Subquery>): Subquery {
+  create(something: DeepPartial<Subqns>): Subqns {
     return this.subqueryRepository.create(something);
   }
 
-  async findOne(condition: any): Promise<Subquery> {
+  async findOne(condition: any): Promise<Subqns> {
     return this.subqueryRepository.findOne(condition);
   }
 
-  async save(subquery: Subquery): Promise<void> {
+  async save(subquery: Subqns): Promise<void> {
       await this.subqueryRepository.save(subquery);
   }
 
