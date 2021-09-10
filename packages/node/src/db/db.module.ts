@@ -57,30 +57,8 @@ const sequelizeAutoFactory = (option: SequelizeOption) => async () => {
 }
 */
 
-// var initialized: { [key: string]: boolean } = {};
-
 const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
 const { migrate } = getYargsOption().argv;
-
-// sequelizeFactory ensures the default schema exists before returning a Sequelize instance
-// no need to implement separately
-// TypeOrmModule requires the default schema being created before Module loading
-// so we need to manually ensure schema being created before loading TypeOrmModule
-const initSchema = (option: DbOption) => async () => {
-  console.log(`ensure default schema ${DEFAULT_DB_SCHEMA} exists`);
-  // await sequelizeFactory({...option, dialect: 'postgres', logging: false})();
-  const client = new Client({
-    user: option.username,
-    password: option.password,
-    host: option.host,
-    port: option.port,
-    database: option.database,
-    ssl: option.ssl,
-  });
-  await client.connect();
-  await client.query(`CREATE SCHEMA IF NOT EXISTS ${DEFAULT_DB_SCHEMA}`);
-  await client.end();
-};
 
 const sequelizeFactory = (option: SequelizeOption) => async () => {
   const sequelize = new Sequelize(option);
@@ -94,11 +72,6 @@ const sequelizeFactory = (option: SequelizeOption) => async () => {
 
   let factoryFns = Object.keys(entities).filter((k) => /Factory$/.exec(k));
   for (const factoryFn of factoryFns) {
-    /*
-    if (!initialized[factoryFn]) {
-      initialized[factoryFn] = true;
-    }
-    */
     console.log(factoryFn);
     entities[factoryFn](sequelize);
   }
@@ -160,10 +133,6 @@ export class DbModule {
       ],
       */
       providers: [
-        {
-          provide: 'InitSchema',
-          useValue: initSchema(option),
-        },
         {
           provide: Sequelize,
           useFactory: sequelizeFactory({

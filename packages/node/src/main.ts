@@ -30,7 +30,6 @@ async function bootstrapNode() {
 
 async function bootstrapQuery() {
   const app = await NestFactory.create(AppQueryModule);
-  // await app.get('InitSchema')();
   await app.init();
   await app.listen(PORT);
   getLogger('subql-query').info(`subql-query started on ${PORT}`);
@@ -41,7 +40,6 @@ async function bootstrapAll() {
 
   const appOptions = {cors: true}
   const app = await NestFactory.create(AppModule, appOptions);
-  // await app.get('InitSchema')();
   await app.get(IndexerManager).init();
 
   const docOpts = new DocumentBuilder()
