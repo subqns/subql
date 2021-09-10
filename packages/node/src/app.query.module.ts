@@ -13,7 +13,7 @@ import { ApiModule } from './api/api.module';
 // import { CatModule } from './cat/cat.module';
 // import { OrmCatModule } from './cat/orm/cat.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CatModule } from './offchain/Cat.module';
+// import { CatModule } from './offchain/Cat.module';
 
 export class NodeOption {}
 
@@ -47,7 +47,7 @@ export class NodeOption {}
     ApiModule,
     // CatModule,
     // OrmCatModule,
-    CatModule,
+    // CatModule,
   ],
   controllers: [],
 })
