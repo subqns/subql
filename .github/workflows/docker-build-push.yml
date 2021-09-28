@@ -1,0 +1,28 @@
+name: Docker Build Push
+on: [push]
+jobs:
+  vm-job:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "${{ github.repository }} @ ${{ github.ref }}"
+        name: hi
+      - run: docker version
+        name: docker version
+      - run: ls -la
+      - uses: actions/checkout@v2
+        name: checkout code
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - run: ls -la
+      - run: docker build -t btwiuse/subql:${{ github.sha }} .
+        name: docker build
+      - run: docker images
+        name: docker images
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - run: docker push btwiuse/subql:${{ github.sha }}
+        name: docker push
