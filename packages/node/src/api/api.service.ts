@@ -79,7 +79,7 @@ export class ApiService implements OnApplicationShutdown, OnModuleInit {
       this.eventEmitter.emit(IndexerEvent.ApiConnected, { value: 0 });
     });
 
-    this.keyring = new Keyring({ type: 'sr25519', ss58Format: 50 });
+    this.keyring = new Keyring({ type: 'sr25519', ss58Format: 12191 });
 
     return this;
   }
