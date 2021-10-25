@@ -26,3 +26,8 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - run: docker push nftmart/subql:${{ github.sha }}
         name: docker push
+      - name: docker push latest
+        if: github.ref == 'refs/heads/nftmart'
+        run: |
+          docker tag nftmart/subql:${{ github.sha }} nftmart/subql
+          docker push nftmart/subql

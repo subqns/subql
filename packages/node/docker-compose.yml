@@ -65,3 +65,15 @@ services:
     volumes:
     - ./Caddyfile.dev:/Caddyfile
     network_mode: host
+
+  subql:
+    image: nftmart/subql
+    build: .
+    environment:
+      DB_SCHEMA: staging
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_USERNAME: postgres
+      DB_PASS: nftmart
+    command: yarn start -n staging_v3 --batch-size=100 --network-endpoint wss://staging.nftmart.io/rpc/ws
