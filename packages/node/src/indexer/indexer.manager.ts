@@ -13,7 +13,6 @@ import {
 import { QueryTypes, Sequelize } from 'sequelize';
 import { NodeConfig } from '../configure/NodeConfig';
 import { SubqueryProject } from '../configure/project.model';
-import { SubqueryModel, SubqueryRepo } from '../entities';
 import { getLogger } from '../utils/logger';
 import * as SubstrateUtil from '../utils/substrate';
 import { ApiService } from '../api/api.service';
@@ -23,6 +22,8 @@ import { StoreService } from './store.service';
 import { BlockContent } from './types';
 import { handleBlock, handleCall, handleEvent } from '@nftmart/subql';
 import { setGlobal } from '@subquery/types';
+import { SubqnsService } from '../onchain/Subqns.service';
+import { Subqns as SubqnsModel } from '../onchain/Subqns.entity';
 
 const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
 
@@ -32,18 +33,18 @@ const logger = getLogger('index');
 export class IndexerManager implements OnModuleInit {
   private api: ApiPromise;
   private keyring: Keyring;
-  private subqueryState: SubqueryModel;
+  private subqueryState: SubqnsModel;
   private prevSpecVersion?: number;
   private initialized: boolean;
 
   constructor(
+    protected subqueryService: SubqnsService,
     protected apiService: ApiService,
     protected storeService: StoreService,
     protected fetchService: FetchService,
     protected sequelize: Sequelize,
     protected project: SubqueryProject,
     protected nodeConfig: NodeConfig,
-    @Inject('Subquery') protected subqueryRepo: SubqueryRepo,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -114,7 +115,7 @@ export class IndexerManager implements OnModuleInit {
       }
       this.subqueryState.nextBlockHeight =
         block.block.header.number.toNumber() + 1;
-      await this.subqueryState.save();
+      await this.subqueryService.save(this.subqueryState);
       this.fetchService.latestProcessed(block.block.header.number.toNumber());
       this.prevSpecVersion = block.specVersion;
     } catch (e) {
@@ -185,8 +186,8 @@ export class IndexerManager implements OnModuleInit {
     }
   }
 
-  private async ensureProject(name: string): Promise<SubqueryModel> {
-    let project = await this.subqueryRepo.findOne({ where: { name } });
+  private async ensureProject(name: string): Promise<SubqnsModel> {
+    let project = await this.subqueryService.findOne({ where: { name } });
     const { chain, genesisHash } = this.apiService.networkMeta;
     if (!project) {
       let projectSchema: string;
@@ -201,7 +202,7 @@ export class IndexerManager implements OnModuleInit {
         }
       }
 
-      project = await this.subqueryRepo.create({
+      project = this.subqueryService.create({
         name,
         dbSchema: projectSchema,
         hash: '0x',
@@ -209,11 +210,13 @@ export class IndexerManager implements OnModuleInit {
         network: chain,
         networkGenesis: genesisHash,
       });
+      await this.subqueryService.save(project);
     } else {
       if (!project.networkGenesis || !project.network) {
         project.network = chain;
         project.networkGenesis = genesisHash;
-        await project.save();
+        // await project.save();
+        await this.subqueryService.save(project);
       } else if (project.networkGenesis !== genesisHash) {
         logger.error(
           `Not same network: genesisHash different - ${project.networkGenesis} : ${genesisHash}`,

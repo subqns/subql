@@ -68,7 +68,8 @@ services:
 
   subql:
     image: nftmart/subql
-    build: .
+    build:
+      context: ../../
     environment:
       DB_SCHEMA: staging
       DB_HOST: postgres

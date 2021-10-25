@@ -7,7 +7,6 @@ import { Sequelize } from 'sequelize';
 import { Pool, Client } from 'pg';
 import { createConnection, Connection as TypeOrm } from 'typeorm';
 import { Options as SequelizeOption } from 'sequelize/types';
-import * as entities from '../entities';
 import { getLogger } from '../utils/logger';
 import { delay } from '../utils/promise';
 import { getYargsOption } from '../yargs';
@@ -70,11 +69,6 @@ const sequelizeFactory = (option: SequelizeOption) => async () => {
     await sequelize.createSchema(DEFAULT_DB_SCHEMA, undefined);
   }
 
-  let factoryFns = Object.keys(entities).filter((k) => /Factory$/.exec(k));
-  for (const factoryFn of factoryFns) {
-    console.log(factoryFn);
-    entities[factoryFn](sequelize);
-  }
   await sequelize.sync({ alter: migrate });
   return sequelize;
 };
@@ -166,18 +160,6 @@ export class DbModule {
         //SequelizeAuto,
         //TypeOrm,
       ],
-    };
-  }
-
-  static forFeature(models: string[]): DynamicModule {
-    return {
-      module: DbModule,
-      providers: models.map((model) => ({
-        provide: model,
-        inject: [Sequelize],
-        useFactory: (sequelize: Sequelize) => sequelize.model(model),
-      })),
-      exports: models,
     };
   }
 }

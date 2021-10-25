@@ -4,7 +4,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Sequelize } from 'sequelize';
-import { SubqueryRepo } from '../entities';
 import { DbModule } from './db.module';
 
 describe('DbModule', () => {
@@ -43,13 +42,10 @@ describe('DbModule', () => {
           password: process.env.DB_PASS ?? 'nftmart',
           database: process.env.DB_DATABASE ?? 'postgres',
         }),
-        DbModule.forFeature(['Subquery']),
       ],
     }).compile();
 
     app = module.createNestApplication();
     await app.init();
-    const subqueryRepo: SubqueryRepo = app.get('Subquery');
-    await expect(subqueryRepo.describe()).resolves.toBeTruthy();
   });
 });

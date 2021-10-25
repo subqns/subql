@@ -1,8 +1,2 @@
-.github
-node_modules
-coverage
-deploy
-docs
-test/docker-compose.yaml
-test/Dockerfile
-packages/nftmart
+./packages/node/.data*
+./node_modules
