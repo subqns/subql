@@ -8,9 +8,14 @@ import { BenchmarkService } from './benchmark.service';
 import { FetchService } from './fetch.service';
 import { IndexerManager } from './indexer.manager';
 import { StoreService } from './store.service';
+import { OnchainModule } from '../onchain';
 
 @Module({
-  imports: [DbModule.forFeature(['Subquery']), ApiModule],
+  imports: [
+    // DbModule.forFeature(['Subquery']),
+    ApiModule,
+    OnchainModule,
+  ],
   providers: [
     IndexerManager,
     StoreService,

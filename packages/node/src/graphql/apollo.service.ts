@@ -68,12 +68,14 @@ export class ApolloService implements OnModuleInit {
           allowExplain: true,
           enhanceGraphiql: true,
         };
+	  /*
     const dbSchema = await this.projectService.getProjectSchema(
       this.config.subqueryName,
     );
+	  */
     return postgraphile(
       this.pgPool,
-      [dbSchema, DEFAULT_DB_SCHEMA, ...jwtSchemas],
+      [DEFAULT_DB_SCHEMA, ...jwtSchemas],
       {
         ...jwtOptions,
         ...graphiqlOptions,
@@ -99,7 +101,8 @@ export class ApolloService implements OnModuleInit {
             req,
             res,
             offchainSchema: DEFAULT_DB_SCHEMA,
-            projectSchema: dbSchema,
+	    // projectSchema: dbSchema,
+	    projectSchema: DEFAULT_DB_SCHEMA,
             sequelize: this.sequelize,
             api: this.apiService.getApi(),
             keyring: this.apiService.getKeyring(),

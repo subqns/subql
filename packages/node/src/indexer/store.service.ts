@@ -17,6 +17,8 @@ import {
   getFkConstraint,
   smartTags,
 } from '../utils/sync-helper';
+import { EntityManager } from 'typeorm';
+import { InjectEntityManager } from "@nestjs/typeorm";
 
 const logger = getLogger('store');
 
@@ -34,7 +36,12 @@ export class StoreService {
   private dbSchema: string;
   private modelsRelations: GraphQLModelsRelations;
 
-  constructor(private sequelize: Sequelize, private config: NodeConfig) {}
+  constructor(
+    @InjectEntityManager()
+    private entityManager: EntityManager,
+    private sequelize: Sequelize,
+    private config: NodeConfig,
+  ) {}
 
   async initdbSchema(
     modelsRelations: GraphQLModelsRelations,
@@ -44,7 +51,7 @@ export class StoreService {
     this.modelsRelations = modelsRelations;
     try {
       await this.syncdbSchema(this.dbSchema);
-      await this.syncoffchain(this.dbSchema);
+    //await this.syncoffchain(this.dbSchema);
     } catch (e) {
       logger.error(e, `Having a problem when syncing dbSchema`);
       process.exit(1);
@@ -241,13 +248,8 @@ group by
   getStore(): Store {
     return {
       get: async (entity: string, id: string): Promise<Entity | undefined> => {
-        const model = this.sequelize.model(entity);
-        assert(model, `model ${entity} not exists`);
-        const record = await model.findOne({
-          where: { id },
-          transaction: this.tx,
-        });
-        return record?.toJSON() as Entity;
+        const record = await this.entityManager.findOne(entity, { id });
+        return record as Entity;
       },
       getByField: async (
         entity: string,
@@ -298,14 +300,10 @@ group by
         return record?.toJSON() as Entity;
       },
       set: async (entity: string, id: string, data: Entity): Promise<void> => {
-        const model = this.sequelize.model(entity);
-        assert(model, `model ${entity} not exists`);
-        await model.upsert(data, { transaction: this.tx });
+        await this.entityManager.save(entity, data);
       },
       remove: async (entity: string, id: string): Promise<void> => {
-        const model = this.sequelize.model(entity);
-        assert(model, `model ${entity} not exists`);
-        await model.destroy({ where: { id }, transaction: this.tx });
+        await this.entityManager.delete(entity, { id });
       },
     };
   }

@@ -13,7 +13,7 @@ import {
 import { QueryTypes, Sequelize } from 'sequelize';
 import { NodeConfig } from '../configure/NodeConfig';
 import { SubqueryProject } from '../configure/project.model';
-import { SubqueryModel, SubqueryRepo } from '../entities';
+// import { SubqueryModel, SubqueryRepo } from '../entities';
 import { getLogger } from '../utils/logger';
 import * as SubstrateUtil from '../utils/substrate';
 import { ApiService } from '../api/api.service';
@@ -22,7 +22,11 @@ import { FetchService } from './fetch.service';
 import { StoreService } from './store.service';
 import { BlockContent } from './types';
 import { handleBlock, handleCall, handleEvent } from '@nftmart/subql';
+import { processBlock } from '../onchain';
 import { setGlobal } from '@subquery/types';
+import { BlockService } from '../onchain/Block.service';
+import { SubqnsService } from '../onchain/Subqns.service';
+import { Subqns } from '../onchain/Subqns.entity';
 
 const DEFAULT_DB_SCHEMA = process.env.DB_SCHEMA ?? 'public';
 
@@ -32,18 +36,21 @@ const logger = getLogger('index');
 export class IndexerManager implements OnModuleInit {
   private api: ApiPromise;
   private keyring: Keyring;
-  private subqueryState: SubqueryModel;
+//private subqueryState: SubqueryModel;
+  private subqueryState2: Subqns;
   private prevSpecVersion?: number;
   private initialized: boolean;
 
   constructor(
+    protected blockService: BlockService,
+    protected subqueryService: SubqnsService,
     protected apiService: ApiService,
     protected storeService: StoreService,
     protected fetchService: FetchService,
     protected sequelize: Sequelize,
     protected project: SubqueryProject,
     protected nodeConfig: NodeConfig,
-    @Inject('Subquery') protected subqueryRepo: SubqueryRepo,
+  //@Inject('Subquery') protected subqueryRepo: SubqueryRepo,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -83,7 +90,9 @@ export class IndexerManager implements OnModuleInit {
             switch (handler.kind) {
               case SubqlKind.BlockHandler:
                 if (SubstrateUtil.filterBlock(block, handler.filter)) {
-                  handleBlock(block);
+                  // handleBlock(block);
+                  // processBlock(block);
+                  this.blockService.save(block);
                 }
                 break;
               case SubqlKind.CallHandler: {
@@ -92,7 +101,7 @@ export class IndexerManager implements OnModuleInit {
                   handler.filter,
                 );
                 for (const e of filteredExtrinsics) {
-                  handleCall(e);
+                  // handleCall(e);
                 }
                 break;
               }
@@ -102,7 +111,7 @@ export class IndexerManager implements OnModuleInit {
                   handler.filter,
                 );
                 for (const e of filteredEvents) {
-                  handleEvent(e);
+                  // handleEvent(e);
                 }
                 break;
               }
@@ -112,9 +121,9 @@ export class IndexerManager implements OnModuleInit {
         }
         // TODO: support Ink! and EVM
       }
-      this.subqueryState.nextBlockHeight =
+      this.subqueryState2.nextBlockHeight =
         block.block.header.number.toNumber() + 1;
-      await this.subqueryState.save();
+      await this.subqueryService.save(this.subqueryState2);
       this.fetchService.latestProcessed(block.block.header.number.toNumber());
       this.prevSpecVersion = block.specVersion;
     } catch (e) {
@@ -128,8 +137,9 @@ export class IndexerManager implements OnModuleInit {
     await this.fetchService.init();
     this.api = this.apiService.getApi();
     this.keyring = this.apiService.getKeyring();
-    this.subqueryState = await this.ensureProject(this.nodeConfig.subqueryName);
-    await this.initDbSchema();
+  //this.subqueryState = await this.ensureProject(this.nodeConfig.subqueryName);
+    this.subqueryState2 = await this.ensureProject2(this.nodeConfig.subqueryName);
+  //await this.initDbSchema();
     setGlobal({
       patchedApi: await this.apiService.getPatchedApi(),
       api: this.api,
@@ -143,7 +153,7 @@ export class IndexerManager implements OnModuleInit {
   async start(): Promise<void> {
     const latestBlock = await this.api.rpc.chain.getBlock();
     const latestBlockHeight = latestBlock.block.header.number.toNumber();
-    const nextBlockHeight = this.subqueryState.nextBlockHeight;
+    const nextBlockHeight = this.subqueryState2.nextBlockHeight;
     const followLatestBlock = this.nodeConfig.followLatestBlock;
     const startBlock = this.nodeConfig.startBlock;
 
@@ -184,7 +194,7 @@ export class IndexerManager implements OnModuleInit {
       return Math.min(...startBlocksList);
     }
   }
-
+  /*
   private async ensureProject(name: string): Promise<SubqueryModel> {
     let project = await this.subqueryRepo.findOne({ where: { name } });
     const { chain, genesisHash } = this.apiService.networkMeta;
@@ -223,9 +233,51 @@ export class IndexerManager implements OnModuleInit {
     }
     return project;
   }
+  */
+
+  private async ensureProject2(name: string): Promise<Subqns> {
+    let project = await this.subqueryService.findOne({ where: { name } });
+    const { chain, genesisHash } = this.apiService.networkMeta;
+    if (!project) {
+      let projectSchema: string;
+      if (this.nodeConfig.localMode) {
+        // create tables in default schema if local mode is enabled
+        projectSchema = DEFAULT_DB_SCHEMA;
+      } else {
+        projectSchema = `subquery_${name}`;
+        const schemas = await this.sequelize.showAllSchemas(undefined);
+        if (!(schemas as unknown as string[]).includes(projectSchema)) {
+          await this.sequelize.createSchema(projectSchema, undefined);
+        }
+      }
+
+      project = this.subqueryService.create({
+        name,
+        dbSchema: projectSchema,
+        hash: '0x',
+        nextBlockHeight: this.getStartBlockFromDataSources(),
+        network: chain,
+        networkGenesis: genesisHash,
+      });
+      await this.subqueryService.save(project);
+    } else {
+      if (!project.networkGenesis || !project.network) {
+        project.network = chain;
+        project.networkGenesis = genesisHash;
+        // await project.save();
+        await this.subqueryService.save(project);
+      } else if (project.networkGenesis !== genesisHash) {
+        logger.error(
+          `Not same network: genesisHash different - ${project.networkGenesis} : ${genesisHash}`,
+        );
+        process.exit(1);
+      }
+    }
+    return project;
+  }
 
   private async initDbSchema(): Promise<void> {
-    const dbSchema = this.subqueryState.dbSchema;
+    const dbSchema = this.subqueryState2.dbSchema;
     const graphqlSchema = buildSchemaInlined(
       path.join(this.project.path, this.project.schema),
     );
