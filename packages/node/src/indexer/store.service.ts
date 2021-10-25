@@ -258,16 +258,16 @@ group by
       ): Promise<Entity[] | undefined> => {
         const model = this.sequelize.model(entity);
         assert(model, `model ${entity} not exists`);
-        const indexed =
-          this.modelIndexedFields.findIndex(
-            (indexField) =>
-              indexField.entityName === entity &&
-              indexField.fieldName === field,
-          ) > -1;
-        assert(
-          indexed,
-          `to query by field ${field}, an index must be created on model ${entity}`,
-        );
+        //const indexed =
+        //  this.modelIndexedFields.findIndex(
+        //    (indexField) =>
+        //      indexField.entityName === entity &&
+        //      indexField.fieldName === field,
+        //  ) > -1;
+        //assert(
+        //  indexed,
+        //  `to query by field ${field}, an index must be created on model ${entity}`,
+        //);
         const records = await model.findAll({
           where: { [field]: value },
           transaction: this.tx,
