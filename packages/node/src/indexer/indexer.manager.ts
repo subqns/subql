@@ -195,7 +195,7 @@ export class IndexerManager implements OnModuleInit {
         // create tables in default schema if local mode is enabled
         projectSchema = DEFAULT_DB_SCHEMA;
       } else {
-        projectSchema = `subquery_${name}`;
+        projectSchema = `${DEFAULT_DB_SCHEMA}_${name}`;
         const schemas = await this.sequelize.showAllSchemas(undefined);
         if (!(schemas as unknown as string[]).includes(projectSchema)) {
           await this.sequelize.createSchema(projectSchema, undefined);

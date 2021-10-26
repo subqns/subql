@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+
+  subql:
+    image: nftmart/subql:${COMMIT:-latest}
+    environment:
+      DB_SCHEMA: "${DB_SCHEMA}"
+      DB_HOST: "${DB_HOST}"
+      DB_PORT: "${DB_PORT}"
+      DB_USER: "${DB_USER}"
+      DB_USERNAME: "${DB_USERNAME}"
+      DB_PASS: "${DB_PASS}"
+      DB_DATABASE: "${DB_DATABASE}"
+    working_dir: /app/packages/node/
+    entrypoint: ["bash", "-c"]
+    command:
+    - yarn dev -n v1 --batch-size=100 --network-endpoint wss://mainnet.nftmart.io/rpc/ws --start-block=432123
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  autoheal:
+    restart: always
+    image: willfarrell/autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
