@@ -77,4 +77,13 @@ services:
       DB_USER: postgres
       DB_USERNAME: postgres
       DB_PASS: nftmart
-    command: yarn start -n staging_v3 --batch-size=100 --network-endpoint wss://staging.nftmart.io/rpc/ws
+    working_dir: /app/packages/node/
+    entrypoint: ["bash", "-c"]
+    command:
+    - yarn dev -n staging_v9 --batch-size=100 --network-endpoint wss://staging.nftmart.io/rpc/ws
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:3000/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 20s

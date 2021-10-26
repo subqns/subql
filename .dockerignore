@@ -1,2 +1,3 @@
 ./packages/node/.data*
+./packages/nftmart/
 ./node_modules
